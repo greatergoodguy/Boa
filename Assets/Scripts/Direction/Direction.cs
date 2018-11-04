@@ -12,7 +12,7 @@ public enum DirectionEnum {
 }
 
 public struct Direction {
-    DirectionEnum direction;
+    readonly DirectionEnum direction;
 
     public Direction(DirectionEnum direction) {
         this.direction = direction;

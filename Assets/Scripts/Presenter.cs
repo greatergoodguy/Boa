@@ -16,6 +16,6 @@ public class Presenter : MonoBehaviour {
 	}
 
 	public void Present(GameState gameState) {
-		snakeHead.transform.position = gameState.snake.position.ToUnityVector2();
+		snakeHead.transform.position = gameState.snakes.all[0].position.ToUnityVector2();
 	}
 }

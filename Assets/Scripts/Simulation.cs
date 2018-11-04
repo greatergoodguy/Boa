@@ -3,88 +3,58 @@ using UnityEngine;
 
 public class Simulation {
     public int tick { get; private set; }
-    public GameState gameState { get; private set; }
 
-    PreviousGameStates previousGameState = new PreviousGameStates();
+    PreviousGameStates previousGameStates = new PreviousGameStates();
 
     public Simulation() {
-        gameState = new GameState() {
-            snake = new SnakeState(new DG_Vector2(0, 0), new Direction(DirectionEnum.Up), true)
-        };
-        previousGameState[tick] = gameState;
+        // Initial GameState
+        tick = 0;
+        previousGameStates[tick] = new GameState(
+            new AllSnakesState(
+                new SnakeState[] {
+                    new SnakeState(new DG_Vector2(0, 0), new Direction(DirectionEnum.Up), true),
+                    new SnakeState(new DG_Vector2(3, -4), new Direction(DirectionEnum.Up), true),
+                }
+            )
+        );
     }
 
     public GameState DoTick(Commands commands) {
         Toolbox.Log($"Simulation DoTick {tick} -> {tick + 1}");
         tick++;
-        gameState = Simulator.DoTick(gameState, commands);
-        previousGameState[tick] = gameState;
-        return gameState;
+        previousGameStates[tick] = (GameState) GameStateReducer.I.DoTick(previousGameStates[tick - 1], commands);
+        return previousGameStates[tick];
     }
 
     public GameState RollbackToTick(int tick) {
         Toolbox.Log($"Simulation RollbackToTick {this.tick} -> {tick}");
         this.tick = tick;
-        gameState = previousGameState[tick];
-        return gameState;
+        return previousGameStates[tick];
     }
 }
 
 class PreviousGameStates : Dictionary<int, GameState> { }
 
-static class Simulator {
-    public static GameState DoTick(GameState previousState, Commands commands) {
-        var newState = previousState;
-        newState.snake = (SnakeState) SnakeReducer.I.DoTick(previousState, commands);
-        return newState;
-    }
-}
-
 public interface IGameState { }
 
 public struct GameState : IGameState {
-    public SnakeState snake;
-}
+    public readonly AllSnakesState snakes;
 
-public interface IReducer {
-    IGameState DoTick(GameState previousState, Commands commands);
-}
-
-public struct SnakeState : IGameState {
-    public readonly DG_Vector2 position;
-    public readonly Direction direction;
-    public readonly bool isAlive;
-
-    public SnakeState(DG_Vector2 position, Direction direction, bool isAlive) {
-        this.position = position;
-        this.direction = direction;
-        this.isAlive = isAlive;
+    public GameState(AllSnakesState snakes) {
+        this.snakes = snakes;
     }
 }
 
-public struct SnakeReducer : IReducer {
-    public static SnakeReducer I;
+public interface IReducer<T, U> where T : IGameState where U : IGameState {
+    U DoTick(T previousState, Commands commands);
+}
 
-    public IGameState DoTick(GameState previousState, Commands commands) {
-        var previousSnake = previousState.snake;
+struct GameStateReducer : IReducer<GameState, GameState> {
+    public static GameStateReducer I;
 
-        // Change direction
-        var newDirection = HandleDirectionChange(previousSnake.direction, commands);
-        // Move
-        var newPosition = previousSnake.position + newDirection.GetMoveVector();
-
-        return new SnakeState(
-            newPosition,
-            newDirection,
-            previousSnake.isAlive
+    public GameState DoTick(GameState previousState, Commands commands) {
+        return new GameState(
+            (AllSnakesState) AllSnakesReducer.I.DoTick(previousState, commands)
         );
-    }
-
-    Direction HandleDirectionChange(Direction currentDirection, Commands commands) {
-        if (commands.changeDirection == DirectionEnum.None) {
-            return currentDirection;
-        } else {
-            return new Direction(commands.changeDirection);
-        }
     }
 }

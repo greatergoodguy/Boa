@@ -9,8 +9,8 @@ public struct DG_Vector2 {
     [JsonIgnore]
     public static DG_Vector2 zero = new DG_Vector2(0, 0);
 
-    public int x;
-    public int y;
+    public readonly int x;
+    public readonly int y;
 
     public DG_Vector2(int x, int y) {
         this.x = x;
