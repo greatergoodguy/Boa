@@ -19,6 +19,8 @@ public class Simulation {
         );
     }
 
+    public GameState GetInitialGameState() => previousGameStates[0];
+
     public GameState DoTick(Commands commands) {
         Toolbox.Log($"Simulation DoTick {tick} -> {tick + 1}");
         tick++;

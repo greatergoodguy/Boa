@@ -15,6 +15,10 @@ public class Scheduler : MonoBehaviour {
 
     void Awake() { }
 
+    void Start() {
+        presenter.Present(simulation.GetInitialGameState());
+    }
+
     void Update() {
         CheckLocalPlayerInput();
 

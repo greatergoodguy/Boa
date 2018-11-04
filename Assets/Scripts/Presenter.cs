@@ -2,20 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Presenter : MonoBehaviour {
-	public GameObject snakeHead;
+public class Presenter : MonoBehaviour, IPresenter<GameState> {
 
-	// Use this for initialization
 	void Start() {
 
 	}
 
-	// Update is called once per frame
 	void Update() {
 
 	}
 
 	public void Present(GameState gameState) {
-		snakeHead.transform.position = gameState.snakes.all[0].position.ToUnityVector2();
+		AllSnakesPresenter.I.Present(gameState.snakes);
 	}
 }
