@@ -22,59 +22,63 @@ public class Scheduler : MonoBehaviour {
     void Update() {
         CheckLocalPlayerInput();
 
-        if (Input.GetKeyDown(KeyCode.P)) {
+        if (DG_Input.ToggleManualTick()) {
             manualTickDebugMode = !manualTickDebugMode;
         }
 
         if (manualTickDebugMode) {
             DoManualTickStuff();
         } else {
-            elapsedTime += Time.deltaTime;
-
-            if (elapsedTime > 1 / ticksPerSecond) {
-                if (HaveAllCommandsForNextTick() == false) {
-                    commandHistory[simulation.tick + 1] = new Commands();
-                }
-
-                elapsedTime -= 1 / ticksPerSecond;
-                DoTick();
-            }
+            DoNormalTickStuff();
         }
     }
 
     void CheckLocalPlayerInput() {
-        if (Input.GetKeyDown(KeyCode.A)) {
+        if (DG_Input.GoLeft()) {
             commandHistory[simulation.tick + 1] = new Commands(DirectionEnum.Left);
         }
-        if (Input.GetKeyDown(KeyCode.W)) {
+        if (DG_Input.GoUp()) {
             commandHistory[simulation.tick + 1] = new Commands(DirectionEnum.Up);
         }
-        if (Input.GetKeyDown(KeyCode.D)) {
+        if (DG_Input.GoRight()) {
             commandHistory[simulation.tick + 1] = new Commands(DirectionEnum.Right);
         }
-        if (Input.GetKeyDown(KeyCode.S)) {
+        if (DG_Input.GoDown()) {
             commandHistory[simulation.tick + 1] = new Commands(DirectionEnum.Down);
         }
     }
 
-    bool HaveAllCommandsForNextTick() {
-        return commandHistory.ContainsKey(simulation.tick + 1);
-    }
-
     void DoManualTickStuff() {
-        if (simulation.tick != safeTick && Input.GetKeyDown(KeyCode.N)) {
-            if (Input.GetKey(KeyCode.LeftShift)) {
+        if (simulation.tick != safeTick && DG_Input.NextTick()) {
+            if (DG_Input.NextTickBig()) {
                 RollForwardToTick(Mathf.Min(simulation.tick + 10, safeTick));
             } else {
                 DoTick();
             }
-        } else if (Input.GetKeyDown(KeyCode.B) && simulation.tick > 0) {
-            if (Input.GetKey(KeyCode.LeftShift)) {
+        } else if (DG_Input.BackTick() && simulation.tick > 0) {
+            if (DG_Input.BackTickBig()) {
                 RollbackToTick(Mathf.Max(simulation.tick - 10, 0));
             } else {
                 RollbackToTick(simulation.tick - 1);
             }
         }
+    }
+
+    void DoNormalTickStuff() {
+        elapsedTime += Time.deltaTime;
+
+        if (elapsedTime > 1 / ticksPerSecond) {
+            if (HaveAllCommandsForNextTick() == false) {
+                commandHistory[simulation.tick + 1] = new Commands();
+            }
+
+            elapsedTime -= 1 / ticksPerSecond;
+            DoTick();
+        }
+    }
+
+    bool HaveAllCommandsForNextTick() {
+        return commandHistory.ContainsKey(simulation.tick + 1);
     }
 
     public void RollForwardToTick(int tick) {
