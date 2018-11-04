@@ -6,6 +6,14 @@ GameStateMachine
 		GameOver
 
 
+ServerStateMachine
+	Match
+		Lobby
+		Playing
+		GameOver
+	
+
+
 ServerStart
 	start tick
 
