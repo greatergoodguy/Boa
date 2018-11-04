@@ -1,9 +1,8 @@
 GameStateMachine
 	Menu
-	Match
-		Lobby
-		Playing
-		GameOver
+	Lobby
+	Playing
+	GameOver
 
 
 ServerStateMachine
