@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class Extensions {
     public static void ZipDo<T1, T2>(this IEnumerable<T1> first, IEnumerable<T2> second, Action<T1, T2> action) {
@@ -21,5 +22,14 @@ public static class Extensions {
             action(index++, elem);
 
         return index;
+    }
+
+    public static bool HasComponent<T>(this GameObject obj) {
+        return obj.GetComponent(typeof(T)) != null;
+    }
+    
+    public static string Truncate(this string value, int maxLength) {
+        if (string.IsNullOrEmpty(value)) return value;
+        return value.Length <= maxLength ? value : value.Substring(0, maxLength);
     }
 }
