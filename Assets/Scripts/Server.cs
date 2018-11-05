@@ -17,6 +17,11 @@ public class Server : MonoBehaviour {
 
 	void Start() {
 		Debug.Log("Server Start");
+		NetworkServer.RegisterHandler(NetworkMessages.JSONMessage, (NetworkMessage msg) => {
+			Debug.Log("GOT MESSAGE: " + msg.ReadMessage<JSONMessage>().json);
+			NetworkServer.SendToAll(NetworkMessages.JSONMessage, new JSONMessage() { json = "pong" });
+		});
+
 		networkManager.StartMatchMaker();
 		networkManager.matchMaker.CreateMatch(
 			matchName: DateTime.Now.ToString(),
@@ -27,7 +32,7 @@ public class Server : MonoBehaviour {
 			publicClientAddress: "",
 			eloScoreForMatch : 0,
 			requestDomain : 0,
-			callback : networkManager.OnMatchCreate
+			callback : OnMatchCreate
 		);
 		// For creating LAN server
 		// networkManager.StartServer();

@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Scheduler : MonoBehaviour {
+    public static Scheduler I;
 
     public Presenter presenter;
     public float ticksPerSecond;
@@ -14,7 +16,9 @@ public class Scheduler : MonoBehaviour {
     int safeTick = 0;
     bool running = false;
 
-    void Awake() { }
+    void Awake() {
+        I = this;
+    }
 
     public void Go() {
         Present(simulation.GetInitialGameState());

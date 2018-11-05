@@ -5,8 +5,14 @@ using UnityEngine.Networking;
 
 public class GameMenu : GameStateMachine {
 
+	void Update() { }
+
 	public override GameStateMachine GetNextState() {
-		return null;
+		if (NetworkManager.singleton.client != null && NetworkManager.singleton.client.isConnected) {
+			return GetComponent<GameJoining>();
+		} else {
+			return null;
+		}
 	}
 
 	public override void Enter() {
