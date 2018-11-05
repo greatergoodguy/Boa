@@ -31,11 +31,11 @@ public class Server : MonoBehaviour {
 		);
 		// For creating LAN server
 		// networkManager.StartServer();
-		scheduler.Go();
 	}
 
 	public void OnMatchCreate(bool success, string extendedInfo, MatchInfo matchInfo) {
 		networkManager.OnMatchCreate(success, extendedInfo, matchInfo);
+		scheduler.Go();
 	}
 
 	void Update() {
