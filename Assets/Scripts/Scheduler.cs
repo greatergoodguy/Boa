@@ -12,14 +12,22 @@ public class Scheduler : MonoBehaviour {
     bool manualTickDebugMode;
     float elapsedTime = 0;
     int safeTick = 0;
+    bool running = false;
 
     void Awake() { }
 
-    void Start() {
+    public void Go() {
         presenter.Present(simulation.GetInitialGameState());
+        running = true;
+    }
+
+    public void Stop() {
+        running = false;
     }
 
     void Update() {
+        if (!running) return;
+
         CheckLocalPlayerInput();
 
         if (DG_Input.ToggleManualTick()) {
