@@ -17,7 +17,7 @@ public class Scheduler : MonoBehaviour {
     void Awake() { }
 
     public void Go() {
-        presenter.Present(simulation.GetInitialGameState());
+        Present(simulation.GetInitialGameState());
         running = true;
     }
 
@@ -96,13 +96,17 @@ public class Scheduler : MonoBehaviour {
 
     void DoTick() {
         Toolbox.Log($"DoTick {simulation.tick} -> {simulation.tick + 1}");
-        presenter.Present(simulation.DoTick(commandHistory[simulation.tick + 1]));
+        Present(simulation.DoTick(commandHistory[simulation.tick + 1]));
         safeTick = Mathf.Max(simulation.tick, safeTick);
     }
 
     void RollbackToTick(int tick) {
         Toolbox.Log($"RollbackToTick {simulation.tick} -> {tick}");
-        presenter.Present(simulation.RollbackToTick(tick));
+        Present(simulation.RollbackToTick(tick));
+    }
+
+    void Present(GameState gameState) {
+        presenter?.Present(gameState);
     }
 }
 
