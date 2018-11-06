@@ -350,6 +350,14 @@ Prefab:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 22400762, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22426080, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 2}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 2}
   m_IsPrefabAsset: 0
@@ -395,6 +403,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a0522c68e49bb347aeb2feb498ab6f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LAN: 1
 --- !u!114 &1560329495
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -407,7 +416,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   presenter: {fileID: 0}
-  ticksPerSecond: 0
 --- !u!114 &1560329496
 MonoBehaviour:
   m_ObjectHideFlags: 0
