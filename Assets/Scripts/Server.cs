@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
+using static NetworkMessageTypes;
+using static UnityEngine.Networking.NetworkServer;
 
 public class Server : MonoBehaviour {
+	public bool LAN;
+
 	Scheduler scheduler;
 	DG_NetworkManager networkManager;
 
@@ -17,11 +22,25 @@ public class Server : MonoBehaviour {
 
 	void Start() {
 		Debug.Log("Server Start");
-		NetworkServer.RegisterHandler(NetworkMessages.JSONMessage, (NetworkMessage msg) => {
-			Debug.Log("GOT MESSAGE: " + msg.ReadMessage<JSONMessage>().json);
-			NetworkServer.SendToAll(NetworkMessages.JSONMessage, new JSONMessage() { json = "pong" });
+		RegisterHandler(JSONMessageType, (NetworkMessage msg) => {
+			Debug.Log("GOT MESSAGE JSONMessageType: " + msg.ReadMessage<JSONMessage>().json);
+			SendToAll(JSONMessageType, new JSONMessage() { json = "pong" });
+		});
+		RegisterHandler(RequestGameStateType, (NetworkMessage msg) => {
+			Debug.Log("GOT MESSAGE RequestGameStateType: " + RequestGameStateType);
+			var gameStateAndCommands = Scheduler.I.SerializeGameStateAndCommands();
+			Debug.Log("SENDING: " + JsonConvert.SerializeObject(gameStateAndCommands));
+			SendToClient(msg.conn.connectionId, RequestGameStateType, gameStateAndCommands);
 		});
 
+		if (LAN) {
+			StartLANServer();
+		} else {
+			CreateMatch();
+		}
+	}
+
+	void CreateMatch() {
 		networkManager.StartMatchMaker();
 		networkManager.matchMaker.CreateMatch(
 			matchName: DateTime.Now.ToString(),
@@ -34,13 +53,20 @@ public class Server : MonoBehaviour {
 			requestDomain : 0,
 			callback : OnMatchCreate
 		);
-		// For creating LAN server
-		// networkManager.StartServer();
+	}
+
+	void StartLANServer() {
+		networkManager.StartServer();
+		OnServerStart();
 	}
 
 	public void OnMatchCreate(bool success, string extendedInfo, MatchInfo matchInfo) {
 		networkManager.OnMatchCreate(success, extendedInfo, matchInfo);
-		scheduler.Go();
+		OnServerStart();
+	}
+
+	void OnServerStart() {
+		scheduler.GoWithDefaultGameState();
 	}
 
 	void Update() {

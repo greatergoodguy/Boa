@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class Scheduler : MonoBehaviour {
     public static Scheduler I;
 
     public Presenter presenter;
-    public float ticksPerSecond;
+    float ticksPerSecond = 2;
 
     Simulation simulation = new Simulation();
     CommandHistory commandHistory = new CommandHistory();
@@ -14,14 +16,39 @@ public class Scheduler : MonoBehaviour {
     bool manualTickDebugMode;
     float elapsedTime = 0;
     int safeTick = 0;
+    GameState safeGameState;
     bool running = false;
 
     void Awake() {
         I = this;
     }
 
+    public RequestGameStateMessage SerializeGameStateAndCommands() {
+        return new RequestGameStateMessage() {
+            commandHistory = commandHistory,
+            gameState = safeGameState,
+            safeTick = safeTick,
+        };
+    }
+
+    public void LoadGameStateAndCommands(RequestGameStateMessage gameStateMessage) {
+        safeGameState = gameStateMessage.gameState;
+        safeTick = gameStateMessage.safeTick;
+        commandHistory = gameStateMessage.commandHistory;
+        simulation.LoadGameState(safeTick, safeGameState);
+        Go();
+    }
+
+    public void GoWithDefaultGameState() {
+        Debug.Log("GoWithDefaultGameState");
+        safeGameState = simulation.GetInitialGameState();
+        safeTick = simulation.tick;
+        Go();
+    }
+
     public void Go() {
-        Present(simulation.GetInitialGameState());
+        Debug.Log("Go");
+        Present(safeGameState);
         running = true;
     }
 
@@ -32,7 +59,7 @@ public class Scheduler : MonoBehaviour {
     void Update() {
         if (!running) return;
 
-        CheckLocalPlayerInput();
+        if (NetworkManager.singleton.client != null) CheckLocalPlayerInput();
 
         if (DG_Input.ToggleManualTick()) {
             manualTickDebugMode = !manualTickDebugMode;
@@ -93,33 +120,26 @@ public class Scheduler : MonoBehaviour {
         return commandHistory.ContainsKey(simulation.tick + 1);
     }
 
-    public void RollForwardToTick(int tick) {
+    void RollForwardToTick(int tick) {
         Toolbox.Log($"RollForwardToTick {simulation.tick} -> {tick}");
         while (simulation.tick < tick) DoTick();
     }
 
     void DoTick() {
         Toolbox.Log($"DoTick {simulation.tick} -> {simulation.tick + 1}");
-        Present(simulation.DoTick(commandHistory[simulation.tick + 1]));
-        safeTick = Mathf.Max(simulation.tick, safeTick);
+        safeGameState = simulation.DoTick(commandHistory[simulation.tick + 1]);
+        safeTick = simulation.tick;
+        Present(safeGameState);
     }
 
     void RollbackToTick(int tick) {
         Toolbox.Log($"RollbackToTick {simulation.tick} -> {tick}");
-        Present(simulation.RollbackToTick(tick));
+        safeGameState = simulation.RollbackToTick(tick);
+        safeTick = simulation.tick;
+        Present(safeGameState);
     }
 
     void Present(GameState gameState) {
         presenter?.Present(gameState);
-    }
-}
-
-class CommandHistory : Dictionary<int, Commands> { }
-
-public struct Commands {
-    public readonly DirectionEnum changeDirection;
-
-    public Commands(DirectionEnum changeDirection) {
-        this.changeDirection = changeDirection;
     }
 }

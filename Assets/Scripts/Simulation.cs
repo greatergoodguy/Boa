@@ -6,8 +6,8 @@ public class Simulation {
     PreviousGameStates previousGameStates = new PreviousGameStates();
 
     public Simulation() {
-        // Initial GameState
         tick = 0;
+        // Initial GameState
         previousGameStates[tick] = new GameState(
             new AllSnakesState(
                 new SnakeState[] {
@@ -19,6 +19,12 @@ public class Simulation {
     }
 
     public GameState GetInitialGameState() => previousGameStates[0];
+
+    public void LoadGameState(int tick, GameState gameState) {
+        this.tick = tick;
+        previousGameStates.Clear();
+        previousGameStates[this.tick] = gameState;
+    }
 
     public GameState DoTick(Commands commands) {
         Toolbox.Log($"Simulation DoTick {tick} -> {tick + 1}");
