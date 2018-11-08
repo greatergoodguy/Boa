@@ -23,3 +23,7 @@ ClientStart
 	start ticking and listening for new commands
 	ask server to spawn snake
 	server creates spawn snake command at future tick and sends to clients
+
+
+client requests snake spawn
+server creates snake

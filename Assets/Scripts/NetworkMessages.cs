@@ -3,6 +3,7 @@ using UnityEngine.Networking;
 public static class NetworkMessageTypes {
     public const short JSONMessageType = 1000;
     public const short RequestGameStateType = 1001;
+    public const short SnakeSpawnType = 1002;
 }
 
 public class EmptyMessage : MessageBase { }

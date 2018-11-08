@@ -8,7 +8,7 @@ using static NetworkMessageTypes;
 public class Client : MonoBehaviour {
 	public static Client I;
 
-	NetworkClient client;
+	public NetworkClient client { get; private set; }
 
 	void Awake() {
 		I = this;
@@ -23,14 +23,19 @@ public class Client : MonoBehaviour {
 		});
 
 		client.RegisterHandler(RequestGameStateType, (NetworkMessage msg) => {
-			var json = msg.ReadMessage<RequestGameStateMessage>();
-			Debug.Log("GOT MESSAGE RequestGameStateType: " + JsonConvert.SerializeObject(json));
-			Scheduler.I.LoadGameStateAndCommands(json);
+			var gameStateMessage = msg.ReadMessage<RequestGameStateMessage>();
+			Debug.Log("GOT MESSAGE RequestGameStateType: " + JsonConvert.SerializeObject(gameStateMessage));
+			Scheduler.I.LoadGameStateAndCommands(gameStateMessage);
+			RequestSnakeSpawnFromServer();
 		});
 
 		client.Send(JSONMessageType, new JSONMessage() { json = "ping" });
 
 		client.Send(RequestGameStateType, new EmptyMessage());
+	}
+
+	void RequestSnakeSpawnFromServer() {
+		client.Send(SnakeSpawnType, new EmptyMessage());
 	}
 
 	void Update() {

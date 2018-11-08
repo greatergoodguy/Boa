@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 public class Simulation {
     public int tick { get; private set; }
@@ -9,12 +10,11 @@ public class Simulation {
         tick = 0;
         // Initial GameState
         previousGameStates[tick] = new GameState(
-            new AllSnakesState(
-                new SnakeState[] {
-                    new SnakeState(new DG_Vector2(0, 0), new Direction(DirectionEnum.Up), true),
-                    new SnakeState(new DG_Vector2(3, -4), new Direction(DirectionEnum.Up), true),
-                }
-            )
+            tick: 0,
+            snakes: new AllSnakesState(
+                new SnakeState[0]
+            ),
+            players: new int[0]
         );
     }
 
@@ -26,10 +26,10 @@ public class Simulation {
         previousGameStates[this.tick] = gameState;
     }
 
-    public GameState DoTick(Commands commands) {
+    public GameState DoTick(PlayerCommands commands) {
         Toolbox.Log($"Simulation DoTick {tick} -> {tick + 1}");
         tick++;
-        previousGameStates[tick] = (GameState) GameStateReducer.I.DoTick(previousGameStates[tick - 1], commands);
+        previousGameStates[tick] = (GameState) GameStateReducer.I.DoTick(tick, previousGameStates[tick - 1], commands);
         return previousGameStates[tick];
     }
 
@@ -45,23 +45,34 @@ class PreviousGameStates : Dictionary<int, GameState> { }
 public interface IGameState { }
 
 public struct GameState : IGameState {
+    public readonly int tick;
     public readonly AllSnakesState snakes;
+    public readonly int[] players;
 
-    public GameState(AllSnakesState snakes) {
+    public GameState(int tick, AllSnakesState snakes, int[] players) {
+        this.tick = tick;
         this.snakes = snakes;
+        this.players = players;
     }
 }
 
-public interface IReducer<T, U> where T : IGameState where U : IGameState {
-    U DoTick(T previousState, Commands commands);
-}
-
-struct GameStateReducer : IReducer<GameState, GameState> {
+struct GameStateReducer {
     public static GameStateReducer I;
 
-    public GameState DoTick(GameState previousState, Commands commands) {
+    public GameState DoTick(int tick, GameState previousState, PlayerCommands commands) {
         return new GameState(
-            (AllSnakesState) AllSnakesReducer.I.DoTick(previousState, commands)
+            tick: tick,
+            snakes: AllSnakesReducer.I.DoTick(previousState, commands),
+            players: PlayersReducer.DoTick(previousState, commands)
         );
+    }
+}
+
+static class PlayersReducer {
+    public static int[] DoTick(GameState previousState, PlayerCommands commands) {
+        var newState = new HashSet<int>(previousState.players);
+        newState.UnionWith(commands.serverCommands.newPlayerIds);
+        newState.ExceptWith(commands.serverCommands.leftPlayerIds);
+        return newState.ToArray();
     }
 }

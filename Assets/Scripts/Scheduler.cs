@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -23,11 +24,11 @@ public class Scheduler : MonoBehaviour {
         I = this;
     }
 
-    public RequestGameStateMessage SerializeGameStateAndCommands() {
+    public RequestGameStateMessage GetGameStateAndCommands() {
         return new RequestGameStateMessage() {
             commandHistory = commandHistory,
-            gameState = safeGameState,
-            safeTick = safeTick,
+                gameState = safeGameState,
+                safeTick = safeTick,
         };
     }
 
@@ -39,15 +40,16 @@ public class Scheduler : MonoBehaviour {
         Go();
     }
 
-    public void GoWithDefaultGameState() {
+    public void GoServer() {
         Debug.Log("GoWithDefaultGameState");
         safeGameState = simulation.GetInitialGameState();
-        safeTick = simulation.tick;
+        safeTick = 0;
         Go();
     }
 
     public void Go() {
-        Debug.Log("Go");
+        Debug.Log("Go 222");
+        commandHistory[safeTick + 1] = new PlayerCommands(safeGameState.players);
         Present(safeGameState);
         running = true;
     }
@@ -56,13 +58,25 @@ public class Scheduler : MonoBehaviour {
         running = false;
     }
 
+    /// <returns>tick where player can start sending commands</returns>
+    public int AddPlayer(int playerId) {
+        commandHistory.AddPlayer(safeTick + 1, playerId);
+        return safeTick + 2;
+    }
+
+    public void SpawnSnake(int ownerId) {
+        commandHistory.SpawnSnake(safeTick + 10, ownerId);
+    }
+
     void Update() {
         if (!running) return;
 
-        if (NetworkManager.singleton.client != null) CheckLocalPlayerInput();
+        if (NetworkManager.singleton.client != null) {
+            CheckLocalPlayerInput();
 
-        if (DG_Input.ToggleManualTick()) {
-            manualTickDebugMode = !manualTickDebugMode;
+            if (DG_Input.ToggleManualTick()) {
+                manualTickDebugMode = !manualTickDebugMode;
+            }
         }
 
         if (manualTickDebugMode) {
@@ -74,41 +88,44 @@ public class Scheduler : MonoBehaviour {
 
     void CheckLocalPlayerInput() {
         if (DG_Input.GoLeft()) {
-            commandHistory[simulation.tick + 1] = new Commands(DirectionEnum.Left);
+            commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Left);
         }
         if (DG_Input.GoUp()) {
-            commandHistory[simulation.tick + 1] = new Commands(DirectionEnum.Up);
+            commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Up);
         }
         if (DG_Input.GoRight()) {
-            commandHistory[simulation.tick + 1] = new Commands(DirectionEnum.Right);
+            commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Right);
         }
         if (DG_Input.GoDown()) {
-            commandHistory[simulation.tick + 1] = new Commands(DirectionEnum.Down);
+            commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Down);
         }
     }
 
     void DoManualTickStuff() {
-        if (simulation.tick != safeTick && DG_Input.NextTick()) {
-            if (DG_Input.NextTickBig()) {
-                RollForwardToTick(Mathf.Min(simulation.tick + 10, safeTick));
-            } else {
-                DoTick();
-            }
-        } else if (DG_Input.BackTick() && simulation.tick > 0) {
-            if (DG_Input.BackTickBig()) {
-                RollbackToTick(Mathf.Max(simulation.tick - 10, 0));
-            } else {
-                RollbackToTick(simulation.tick - 1);
-            }
-        }
+        // if (simulation.tick != safeTick && DG_Input.NextTick()) {
+        //     if (DG_Input.NextTickBig()) {
+        //         RollForwardToTick(Mathf.Min(simulation.tick + 10, safeTick));
+        //     } else {
+        //         DoTick();
+        //     }
+        // } else if (DG_Input.BackTick() && simulation.tick > 0) {
+        //     // if (DG_Input.BackTickBig()) {
+        //     //     RollbackToTick(Mathf.Max(simulation.tick - 10, 0));
+        //     // } else {
+        //     //     RollbackToTick(simulation.tick - 1);
+        //     // }
+        // }
     }
 
     void DoNormalTickStuff() {
         elapsedTime += Time.deltaTime;
 
         if (elapsedTime > 1 / ticksPerSecond) {
+            if (Server.isServer) commandHistory[safeTick + 1].serverCommands.complete = true;
+            // Debug.Log("DoNormalTickStuff safeGameState.players: " + safeGameState.players);
             if (HaveAllCommandsForNextTick() == false) {
-                commandHistory[simulation.tick + 1] = new Commands();
+                Debug.Log("Waiting for commands...");
+                return;
             }
 
             elapsedTime -= 1 / ticksPerSecond;
@@ -117,27 +134,33 @@ public class Scheduler : MonoBehaviour {
     }
 
     bool HaveAllCommandsForNextTick() {
-        return commandHistory.ContainsKey(simulation.tick + 1);
+        Func<int, bool> HavePlayerInput = (playerId) => {
+            // Debug.Log("HaveAllCommandsForNextTick playerId: " + playerId);
+            return commandHistory[safeTick + 1][playerId].complete;
+        };
+        // Debug.Log("HaveAllCommandsForNextTick safeGameState.players: " + safeGameState.players);
+        return safeGameState.players.All(HavePlayerInput) && commandHistory[safeTick + 1].serverCommands.complete;
     }
 
-    void RollForwardToTick(int tick) {
-        Toolbox.Log($"RollForwardToTick {simulation.tick} -> {tick}");
-        while (simulation.tick < tick) DoTick();
-    }
+    // void RollForwardToTick(int tick) {
+    //     Toolbox.Log($"RollForwardToTick {simulation.tick} -> {tick}");
+    //     while (simulation.tick < tick) DoTick();
+    // }
 
     void DoTick() {
-        Toolbox.Log($"DoTick {simulation.tick} -> {simulation.tick + 1}");
-        safeGameState = simulation.DoTick(commandHistory[simulation.tick + 1]);
-        safeTick = simulation.tick;
+        Toolbox.Log($"DoTick {safeTick} -> {safeTick + 1}");
+        safeGameState = simulation.DoTick(commandHistory[safeTick + 1]);
+        safeTick++;
+        commandHistory[safeTick + 1] = new PlayerCommands(safeGameState.players);
         Present(safeGameState);
     }
 
-    void RollbackToTick(int tick) {
-        Toolbox.Log($"RollbackToTick {simulation.tick} -> {tick}");
-        safeGameState = simulation.RollbackToTick(tick);
-        safeTick = simulation.tick;
-        Present(safeGameState);
-    }
+    // void RollbackToTick(int tick) {
+    //     Toolbox.Log($"RollbackToTick {safeTick} -> {tick}");
+    //     safeGameState = simulation.RollbackToTick(tick);
+    //     safeTick = tick;
+    //     Present(safeGameState);
+    // }
 
     void Present(GameState gameState) {
         presenter?.Present(gameState);

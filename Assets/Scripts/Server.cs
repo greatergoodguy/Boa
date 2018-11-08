@@ -9,6 +9,7 @@ using static NetworkMessageTypes;
 using static UnityEngine.Networking.NetworkServer;
 
 public class Server : MonoBehaviour {
+	public static bool isServer;
 	public bool LAN;
 
 	Scheduler scheduler;
@@ -16,28 +17,40 @@ public class Server : MonoBehaviour {
 
 	void Awake() {
 		Debug.Log("Server Awake");
+		isServer = true;
 		scheduler = GetComponent<Scheduler>();
 		networkManager = GetComponent<DG_NetworkManager>();
 	}
 
 	void Start() {
 		Debug.Log("Server Start");
-		RegisterHandler(JSONMessageType, (NetworkMessage msg) => {
-			Debug.Log("GOT MESSAGE JSONMessageType: " + msg.ReadMessage<JSONMessage>().json);
-			SendToAll(JSONMessageType, new JSONMessage() { json = "pong" });
-		});
-		RegisterHandler(RequestGameStateType, (NetworkMessage msg) => {
-			Debug.Log("GOT MESSAGE RequestGameStateType: " + RequestGameStateType);
-			var gameStateAndCommands = Scheduler.I.SerializeGameStateAndCommands();
-			Debug.Log("SENDING: " + JsonConvert.SerializeObject(gameStateAndCommands));
-			SendToClient(msg.conn.connectionId, RequestGameStateType, gameStateAndCommands);
-		});
+
+		RegisterHandlers();
 
 		if (LAN) {
 			StartLANServer();
 		} else {
 			CreateMatch();
 		}
+	}
+
+	void RegisterHandlers() {
+		RegisterHandler(JSONMessageType, (NetworkMessage msg) => {
+			Debug.Log("GOT MESSAGE JSONMessageType: " + msg.ReadMessage<JSONMessage>().json);
+			SendToAll(JSONMessageType, new JSONMessage() { json = "pong" });
+		});
+		RegisterHandler(RequestGameStateType, (NetworkMessage msg) => {
+			Debug.Log("GOT MESSAGE RequestGameStateType from " + msg.conn.connectionId);
+			var gameStateAndCommands = Scheduler.I.GetGameStateAndCommands();
+			Debug.Log("SENDING: " + JsonConvert.SerializeObject(gameStateAndCommands));
+			SendToClient(msg.conn.connectionId, RequestGameStateType, gameStateAndCommands);
+		});
+		RegisterHandler(SnakeSpawnType, (NetworkMessage msg) => {
+			Debug.Log("GOT MESSAGE SnakeSpawnType from " + msg.conn.connectionId);
+
+			// Debug.Log("SENDING: " + JsonConvert.SerializeObject(gameStateAndCommands));
+			// SendToClient(msg.conn.connectionId, RequestGameStateType, gameStateAndCommands);
+		});
 	}
 
 	void CreateMatch() {
@@ -66,7 +79,7 @@ public class Server : MonoBehaviour {
 	}
 
 	void OnServerStart() {
-		scheduler.GoWithDefaultGameState();
+		scheduler.GoServer();
 	}
 
 	void Update() {

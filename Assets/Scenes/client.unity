@@ -141,7 +141,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   presenter: {fileID: 292539381}
-  ticksPerSecond: 2
 --- !u!4 &43877730
 Transform:
   m_ObjectHideFlags: 0
@@ -1287,7 +1286,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1610696284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1498,7 +1497,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!23 &2096465989
 MeshRenderer:
   m_ObjectHideFlags: 0
