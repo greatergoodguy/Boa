@@ -5,11 +5,11 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
-using static NetworkMessageTypes;
 using static UnityEngine.Networking.NetworkServer;
 
 public class Server : MonoBehaviour {
 	public static bool isServer;
+	public static Server I;
 	public bool LAN;
 
 	Scheduler scheduler;
@@ -20,6 +20,7 @@ public class Server : MonoBehaviour {
 		isServer = true;
 		scheduler = GetComponent<Scheduler>();
 		networkManager = GetComponent<DG_NetworkManager>();
+		I = this;
 	}
 
 	void Start() {
@@ -35,21 +36,22 @@ public class Server : MonoBehaviour {
 	}
 
 	void RegisterHandlers() {
-		RegisterHandler(JSONMessageType, (NetworkMessage msg) => {
-			Debug.Log("GOT MESSAGE JSONMessageType: " + msg.ReadMessage<JSONMessage>().json);
-			SendToAll(JSONMessageType, new JSONMessage() { json = "pong" });
+		RegisterHandler(DG_MsgType.JSONMessage, (NetworkMessage msg) => {
+			Debug.Log("GOT MESSAGE JSONMessage: " + msg.ReadMessage<JSONMessage>().json);
+			SendToAll(DG_MsgType.JSONMessage, new JSONMessage() { json = "pong" });
 		});
-		RegisterHandler(RequestGameStateType, (NetworkMessage msg) => {
-			Debug.Log("GOT MESSAGE RequestGameStateType from " + msg.conn.connectionId);
-			var gameStateAndCommands = Scheduler.I.GetGameStateAndCommands();
+		RegisterHandler(DG_MsgType.PlayerJoin, (NetworkMessage msg) => {
+			Debug.Log("GOT MESSAGE PlayerJoin from " + msg.conn.connectionId);
+			var gameStateAndCommands = Scheduler.I.GetGameStateAndCommandsAndAddPlayer(msg.conn.connectionId);
 			Debug.Log("SENDING: " + JsonConvert.SerializeObject(gameStateAndCommands));
-			SendToClient(msg.conn.connectionId, RequestGameStateType, gameStateAndCommands);
+			SendToClient(msg.conn.connectionId, DG_MsgType.PlayerJoin, gameStateAndCommands);
 		});
-		RegisterHandler(SnakeSpawnType, (NetworkMessage msg) => {
-			Debug.Log("GOT MESSAGE SnakeSpawnType from " + msg.conn.connectionId);
-
+		RegisterHandler(DG_MsgType.PlayerCommand, (NetworkMessage msg) => {
+			Debug.Log("GOT MESSAGE PlayerCommand from " + msg.conn.connectionId);
+			var playerCommandsMsg = msg.ReadMessage<PlayerCommandsMessage>();
 			// Debug.Log("SENDING: " + JsonConvert.SerializeObject(gameStateAndCommands));
 			// SendToClient(msg.conn.connectionId, RequestGameStateType, gameStateAndCommands);
+			SendToAll(DG_MsgType.PlayerCommand, playerCommandsMsg);
 		});
 	}
 
@@ -80,6 +82,13 @@ public class Server : MonoBehaviour {
 
 	void OnServerStart() {
 		scheduler.GoServer();
+	}
+
+	public void SendServerCommandToClients(int tick, ServerCommands serverCommands) {
+		SendToAll(DG_MsgType.ServerCommand, new ServerCommandsMessage(){
+			tick = tick,
+			commands = serverCommands
+		});
 	}
 
 	void Update() {

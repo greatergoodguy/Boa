@@ -14,9 +14,9 @@ public class Presenter : MonoBehaviour, IPresenter<GameState> {
 	}
 
 	public void Present(GameState gameState) {
-		if (isServer) {
-			ServerPresenter.I.Present(gameState);
-		} else {
+		ServerPresenter.I.Present(gameState);
+		
+		if (!isServer) {
 			AllSnakesPresenter.I.Present(gameState.snakes);
 		}
 	}

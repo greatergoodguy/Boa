@@ -3,39 +3,48 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
-using static NetworkMessageTypes;
 
 public class Client : MonoBehaviour {
 	public static Client I;
+	public static bool isClient;
+	public static int playerId;
 
 	public NetworkClient client { get; private set; }
 
 	void Awake() {
 		I = this;
+		isClient = true;
 	}
 
 	void Start() { }
 
 	public void OnJoining() {
 		client = NetworkManager.singleton.client;
-		client.RegisterHandler(JSONMessageType, (NetworkMessage msg) => {
-			Debug.Log("GOT MESSAGE JSONMessageType: " + msg.ReadMessage<JSONMessage>().json);
-		});
+		playerId = client.connection.connectionId;
 
-		client.RegisterHandler(RequestGameStateType, (NetworkMessage msg) => {
-			var gameStateMessage = msg.ReadMessage<RequestGameStateMessage>();
-			Debug.Log("GOT MESSAGE RequestGameStateType: " + JsonConvert.SerializeObject(gameStateMessage));
-			Scheduler.I.LoadGameStateAndCommands(gameStateMessage);
-			RequestSnakeSpawnFromServer();
-		});
+		RegisterHandlers();
 
-		client.Send(JSONMessageType, new JSONMessage() { json = "ping" });
+		client.Send(DG_MsgType.JSONMessage, new JSONMessage() { json = "ping" });
 
-		client.Send(RequestGameStateType, new EmptyMessage());
+		client.Send(DG_MsgType.PlayerJoin, new EmptyMessage());
 	}
 
-	void RequestSnakeSpawnFromServer() {
-		client.Send(SnakeSpawnType, new EmptyMessage());
+	void RegisterHandlers() {
+		client.RegisterHandler(DG_MsgType.JSONMessage, (NetworkMessage msg) => {
+			Debug.Log("GOT MESSAGE JSONMessage: " + msg.ReadMessage<JSONMessage>().json);
+		});
+
+		client.RegisterHandler(DG_MsgType.PlayerJoin, (NetworkMessage msg) => {
+			var gameStateMessage = msg.ReadMessage<PlayerJoin>();
+			Debug.Log("GOT MESSAGE PlayerJoin: " + JsonConvert.SerializeObject(gameStateMessage));
+			Scheduler.I.LoadGameStateAndCommands(gameStateMessage);
+		});
+
+		client.RegisterHandler(DG_MsgType.ServerCommand, (NetworkMessage msg) => {
+			var serverCommandsMessage = msg.ReadMessage<ServerCommandsMessage>();
+			Debug.Log("GOT MESSAGE ServerCommand: " + JsonConvert.SerializeObject(serverCommandsMessage));
+			Scheduler.I.OnServerCommand(serverCommandsMessage);
+		});
 	}
 
 	void Update() {

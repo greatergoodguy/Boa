@@ -12,5 +12,6 @@ public class CommandHistory : Dictionary<int, PlayerCommands> {
 
     public void AddPlayer(int tick, int id) {
         this [tick].serverCommands.newPlayerIds = this [tick].serverCommands.newPlayerIds.Concat(new int[] { id }).ToArray();
+        this [tick][id] = new Commands();
     }
 }
