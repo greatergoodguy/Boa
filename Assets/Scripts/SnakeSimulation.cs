@@ -27,10 +27,14 @@ public struct AllSnakesReducer {
     public static AllSnakesReducer I;
 
     public AllSnakesState DoTick(GameState previousState, PlayerCommands commands) {
+        // commands.serverCommands.newPlayerIds
         var previousSnakes = previousState.snakes;
 
         return new AllSnakesState(
-            previousSnakes.all.Select(x => SnakeReducer.I.DoTick(x, commands[x.ownerNetId].changeDirection)).ToArray()
+            previousSnakes.all
+                .Select(x => SnakeReducer.I.DoTick(x, commands[x.ownerNetId].changeDirection))
+                .Concat(commands.serverCommands.newPlayerIds.Select(x => new SnakeState(new DG_Vector2(x, 0), new Direction(DirectionEnum.Up), true, x)))
+                .ToArray()
         );
     }
 }

@@ -2,10 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class CommandHistory : Dictionary<int, PlayerCommands> {
-    public void SpawnSnake(int tick, int ownerNetId) {
-        this [tick][ownerNetId].spawn = true;
-    }
-
     public void ChangeDirection(int tick, int ownerNetId, DirectionEnum direction) {
         this [tick][ownerNetId].changeDirection = direction;
     }

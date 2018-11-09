@@ -14,7 +14,6 @@ public class PlayerCommands : Dictionary<int, Commands> {
 public class Commands {
     public bool complete;
     public DirectionEnum changeDirection;
-    public bool spawn;
 }
 
 public class ServerCommands {

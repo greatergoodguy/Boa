@@ -39,6 +39,12 @@ public class Scheduler : MonoBehaviour {
         };
     }
 
+    /// <returns>tick where player can start sending commands</returns>
+    int AddPlayer(int playerId) {
+        commandHistory.AddPlayer(safeTick + 1, playerId);
+        return safeTick + 2;
+    }
+
     public void LoadGameStateAndCommands(PlayerJoin gameStateMessage) {
         Debug.Log("LoadGameStateAndCommands safeTick: " + safeTick);
         safeGameState = gameStateMessage.gameState;
@@ -70,22 +76,15 @@ public class Scheduler : MonoBehaviour {
     }
 
     public void OnServerCommand(ServerCommandsMessage serverCommandsMessage) {
-        if (serverCommandsMessage.tick < safeTick) return;
+        if (!running) return;
         commandHistory[serverCommandsMessage.tick].serverCommands.Merge(serverCommandsMessage.commands);
         commandHistory[serverCommandsMessage.tick].serverCommands.complete = true;
     }
 
     public void OnPlayerCommand(PlayerCommandsMessage playerCommandsMessage) {
-        if (playerCommandsMessage.tick < safeTick) return;
+        if (!running) return;
         commandHistory[playerCommandsMessage.tick][playerCommandsMessage.playerId] = playerCommandsMessage.commands;
         commandHistory[playerCommandsMessage.tick][playerCommandsMessage.playerId].complete = true;
-    }
-
-    /// <returns>tick where player can start sending commands</returns>
-    int AddPlayer(int playerId) {
-        commandHistory.AddPlayer(safeTick + 1, playerId);
-        commandHistory.SpawnSnake(safeTick + 1, playerId);
-        return safeTick + 2;
     }
 
     void Update() {
