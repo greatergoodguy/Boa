@@ -18,7 +18,6 @@ public class Scheduler : MonoBehaviour {
     float elapsedTime = 0;
     int safeTick = 0;
     int playerStartTick = int.MaxValue;
-    int newLocalCommandsTick;
     GameState safeGameState;
     bool running = false;
 
@@ -50,7 +49,6 @@ public class Scheduler : MonoBehaviour {
         safeGameState = gameStateMessage.gameState;
         safeTick = gameStateMessage.safeTick;
         playerStartTick = gameStateMessage.playerStartTick;
-        newLocalCommandsTick = safeTick + 1;
         // commandHistory = gameStateMessage.commandHistory;
         commandHistory[safeTick + 1] = new PlayerCommands(safeGameState.players);
         simulation.LoadGameState(safeTick, safeGameState);
@@ -105,18 +103,21 @@ public class Scheduler : MonoBehaviour {
         }
     }
 
+    // TODO Move to new script that sets a variable whenever a player presses a key
+    // then the Scheduler reaches out to read the input once per tick and clears it when it does
     void CheckLocalPlayerInput() {
+        if (commandHistory[safeTick + 1][Client.playerId].complete) return;
         if (DG_Input.GoLeft()) {
-            commandHistory.ChangeDirection(newLocalCommandsTick, Client.I.client.connection.connectionId, DirectionEnum.Left);
+            commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Left);
         }
         if (DG_Input.GoUp()) {
-            commandHistory.ChangeDirection(newLocalCommandsTick, Client.I.client.connection.connectionId, DirectionEnum.Up);
+            commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Up);
         }
         if (DG_Input.GoRight()) {
-            commandHistory.ChangeDirection(newLocalCommandsTick, Client.I.client.connection.connectionId, DirectionEnum.Right);
+            commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Right);
         }
         if (DG_Input.GoDown()) {
-            commandHistory.ChangeDirection(newLocalCommandsTick, Client.I.client.connection.connectionId, DirectionEnum.Down);
+            commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Down);
         }
     }
 
@@ -165,7 +166,6 @@ public class Scheduler : MonoBehaviour {
 
         commandHistory[safeTick + 1][Client.playerId].complete = true;
         Client.I.SendClientCommand(safeTick + 1, commandHistory[safeTick + 1][Client.playerId]);
-        newLocalCommandsTick = safeTick + 2;
     }
 
     void DoServerCommandsDefault() {
