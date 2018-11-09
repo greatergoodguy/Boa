@@ -52,6 +52,7 @@ public class Server : MonoBehaviour {
 			// Debug.Log("SENDING: " + JsonConvert.SerializeObject(gameStateAndCommands));
 			// SendToClient(msg.conn.connectionId, RequestGameStateType, gameStateAndCommands);
 			SendToAll(DG_MsgType.PlayerCommand, playerCommandsMsg);
+			Scheduler.I.OnPlayerCommand(playerCommandsMsg);
 		});
 	}
 
@@ -85,9 +86,9 @@ public class Server : MonoBehaviour {
 	}
 
 	public void SendServerCommandToClients(int tick, ServerCommands serverCommands) {
-		SendToAll(DG_MsgType.ServerCommand, new ServerCommandsMessage(){
+		SendToAll(DG_MsgType.ServerCommand, new ServerCommandsMessage() {
 			tick = tick,
-			commands = serverCommands
+				commands = serverCommands
 		});
 	}
 

@@ -18,6 +18,7 @@ public class Scheduler : MonoBehaviour {
     float elapsedTime = 0;
     int safeTick = 0;
     int playerStartTick = int.MaxValue;
+    int newLocalCommandsTick;
     GameState safeGameState;
     bool running = false;
 
@@ -43,6 +44,7 @@ public class Scheduler : MonoBehaviour {
         safeGameState = gameStateMessage.gameState;
         safeTick = gameStateMessage.safeTick;
         playerStartTick = gameStateMessage.playerStartTick;
+        newLocalCommandsTick = safeTick + 1;
         // commandHistory = gameStateMessage.commandHistory;
         commandHistory[safeTick + 1] = new PlayerCommands(safeGameState.players);
         simulation.LoadGameState(safeTick, safeGameState);
@@ -73,6 +75,12 @@ public class Scheduler : MonoBehaviour {
         commandHistory[serverCommandsMessage.tick].serverCommands.complete = true;
     }
 
+    public void OnPlayerCommand(PlayerCommandsMessage playerCommandsMessage) {
+        if (playerCommandsMessage.tick < safeTick) return;
+        commandHistory[playerCommandsMessage.tick][playerCommandsMessage.playerId] = playerCommandsMessage.commands;
+        commandHistory[playerCommandsMessage.tick][playerCommandsMessage.playerId].complete = true;
+    }
+
     /// <returns>tick where player can start sending commands</returns>
     int AddPlayer(int playerId) {
         commandHistory.AddPlayer(safeTick + 1, playerId);
@@ -100,16 +108,16 @@ public class Scheduler : MonoBehaviour {
 
     void CheckLocalPlayerInput() {
         if (DG_Input.GoLeft()) {
-            commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Left);
+            commandHistory.ChangeDirection(newLocalCommandsTick, Client.I.client.connection.connectionId, DirectionEnum.Left);
         }
         if (DG_Input.GoUp()) {
-            commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Up);
+            commandHistory.ChangeDirection(newLocalCommandsTick, Client.I.client.connection.connectionId, DirectionEnum.Up);
         }
         if (DG_Input.GoRight()) {
-            commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Right);
+            commandHistory.ChangeDirection(newLocalCommandsTick, Client.I.client.connection.connectionId, DirectionEnum.Right);
         }
         if (DG_Input.GoDown()) {
-            commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Down);
+            commandHistory.ChangeDirection(newLocalCommandsTick, Client.I.client.connection.connectionId, DirectionEnum.Down);
         }
     }
 
@@ -133,6 +141,8 @@ public class Scheduler : MonoBehaviour {
         elapsedTime += Time.deltaTime;
 
         if (elapsedTime > 1 / ticksPerSecond) {
+            if (Client.isClient) DoLocalPlayerDefaultCommands();
+
             // Debug.Log("DoNormalTickStuff safeGameState.players: " + safeGameState.players);
             if (HaveAllOtherClientCommandsForNextTick() == false) {
                 Debug.Log("Waiting for client commands...");
@@ -146,8 +156,6 @@ public class Scheduler : MonoBehaviour {
                 return;
             }
 
-            if (Client.isClient) DoLocalPlayerDefaultCommands();
-
             elapsedTime -= 1 / ticksPerSecond;
             DoTick();
         }
@@ -157,7 +165,8 @@ public class Scheduler : MonoBehaviour {
         if (safeTick + 1 < playerStartTick) return;
 
         commandHistory[safeTick + 1][Client.playerId].complete = true;
-        Server.I.SendServerCommandToClients(safeTick + 1, commandHistory[safeTick + 1].serverCommands);
+        Client.I.SendClientCommand(safeTick + 1, commandHistory[safeTick + 1][Client.playerId]);
+        newLocalCommandsTick = safeTick + 2;
     }
 
     void DoServerCommandsDefault() {

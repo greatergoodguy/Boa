@@ -45,6 +45,21 @@ public class Client : MonoBehaviour {
 			Debug.Log("GOT MESSAGE ServerCommand: " + JsonConvert.SerializeObject(serverCommandsMessage));
 			Scheduler.I.OnServerCommand(serverCommandsMessage);
 		});
+
+		client.RegisterHandler(DG_MsgType.PlayerCommand, (NetworkMessage msg) => {
+			var playerCommandsMessage = msg.ReadMessage<PlayerCommandsMessage>();
+			Debug.Log("GOT MESSAGE PlayerCommand: " + JsonConvert.SerializeObject(playerCommandsMessage));
+			if (playerCommandsMessage.playerId == playerId) return;
+			Scheduler.I.OnPlayerCommand(playerCommandsMessage);
+		});
+	}
+
+	public void SendClientCommand(int tick, Commands commands) {
+		client.Send(DG_MsgType.PlayerCommand, new PlayerCommandsMessage() {
+			tick = tick,
+				commands = commands,
+				playerId = playerId
+		});
 	}
 
 	void Update() {
