@@ -1,11 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ServerPresenter : MonoBehaviour, IPresenter<GameState> {
 	public static ServerPresenter I;
+
+	public static float elapsedTime;
 
 	public Text serverDebugUIText;
 
@@ -19,10 +23,24 @@ public class ServerPresenter : MonoBehaviour, IPresenter<GameState> {
 
 	public void Present(GameState gameState) {
 		var debugText = "";
-		debugText += "tick: " + JsonConvert.SerializeObject(gameState.tick) + "\n";
+		debugText += "tick: " + gameState.tick + "\n";
+		debugText += "elapsedTime: " + elapsedTime + "\n";
 		debugText += "players: " + JsonConvert.SerializeObject(gameState.players) + "\n";
-		debugText += "snakes: " + JsonConvert.SerializeObject(gameState.snakes) + "\n";
-		debugText += "apples: " + JsonConvert.SerializeObject(gameState.apples) + "\n";
+		debugText += "snakes: " + GetHashString(JsonConvert.SerializeObject(gameState.snakes)) + " " + JsonConvert.SerializeObject(gameState.snakes) + "\n";
+		debugText += "apples: " + GetHashString(JsonConvert.SerializeObject(gameState.apples)) + "\n";
 		serverDebugUIText.text = debugText;
+	}
+
+	static byte[] GetHash(string inputString) {
+		HashAlgorithm algorithm = MD5.Create(); //or use SHA256.Create();
+		return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+	}
+
+	static string GetHashString(string inputString) {
+		StringBuilder sb = new StringBuilder();
+		foreach (byte b in GetHash(inputString))
+			sb.Append(b.ToString("X2"));
+
+		return sb.ToString();
 	}
 }

@@ -4,7 +4,7 @@ using System.Linq;
 public class CommandHistory : Dictionary<int, PlayerCommands> {
     public void ChangeDirection(int tick, int playerId, DirectionEnum direction) {
         EnsureCommandsExistForPlayer(tick, playerId);
-        this [tick][playerId].changeDirection = direction;
+        this [tick][playerId].ChangeDirection(direction);
     }
 
     public void AddPlayer(int tick, int id) {
@@ -16,18 +16,16 @@ public class CommandHistory : Dictionary<int, PlayerCommands> {
     public void ReceiveOtherPlayerCommand(PlayerCommandsMessage playerCommandsMessage) {
         EnsureCommandsExistForTick(playerCommandsMessage.tick);
         this [playerCommandsMessage.tick][playerCommandsMessage.playerId] = playerCommandsMessage.commands;
-        this [playerCommandsMessage.tick][playerCommandsMessage.playerId].complete = true;
     }
 
     public void ReceiveServerCommand(ServerCommandsMessage serverCommandsMessage) {
         EnsureCommandsExistForTick(serverCommandsMessage.tick);
         this [serverCommandsMessage.tick].serverCommands.Merge(serverCommandsMessage.commands);
-        this [serverCommandsMessage.tick].serverCommands.complete = true;
     }
 
     public void CompletePlayersCommands(int tick, int playerId) {
         EnsureCommandsExistForPlayer(tick, playerId);
-        this [tick][playerId].complete = true;
+        this [tick][playerId].SetComplete();
     }
 
     public void CompleteServerCommandsAtTick(int tick) {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,6 +15,16 @@ public class PlayerCommands : Dictionary<int, Commands> {
 public class Commands {
     public bool complete;
     public DirectionEnum changeDirection;
+
+    public void ChangeDirection(DirectionEnum newDirection) {
+        if (complete) throw new InvalidOperationException("cannot change Commands if complete");
+        this.changeDirection = newDirection;
+    }
+
+    public void SetComplete() {
+        if (complete) throw new InvalidOperationException("already complete");
+        complete = true;
+    }
 }
 
 public class ServerCommands {

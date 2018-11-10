@@ -37,20 +37,18 @@ public class Server : MonoBehaviour {
 
 	void RegisterHandlers() {
 		RegisterHandler(DG_MsgType.JSONMessage, (NetworkMessage msg) => {
-			Debug.Log("GOT MESSAGE JSONMessage: " + msg.ReadMessage<JSONMessage>().json);
+			Debug.Log("GOT MESSAGE JSONMessage from player " + msg.conn.connectionId + ": " + msg.ReadMessage<JSONMessage>().json);
 			SendToAll(DG_MsgType.JSONMessage, new JSONMessage() { json = "pong" });
 		});
 		RegisterHandler(DG_MsgType.PlayerJoin, (NetworkMessage msg) => {
-			Debug.Log("GOT MESSAGE PlayerJoin from " + msg.conn.connectionId);
+			Debug.Log("GOT MESSAGE PlayerJoin from player " + msg.conn.connectionId);
 			var gameStateAndCommands = Scheduler.I.GetGameStateAndCommandsAndAddPlayer(msg.conn.connectionId);
 			Debug.Log("SENDING: " + JsonConvert.SerializeObject(gameStateAndCommands));
 			SendToClient(msg.conn.connectionId, DG_MsgType.PlayerJoin, gameStateAndCommands);
 		});
 		RegisterHandler(DG_MsgType.PlayerCommand, (NetworkMessage msg) => {
-			Debug.Log("GOT MESSAGE PlayerCommand from " + msg.conn.connectionId);
 			var playerCommandsMsg = msg.ReadMessage<PlayerCommandsMessage>();
-			// Debug.Log("SENDING: " + JsonConvert.SerializeObject(gameStateAndCommands));
-			// SendToClient(msg.conn.connectionId, RequestGameStateType, gameStateAndCommands);
+			Debug.Log("GOT MESSAGE PlayerCommand from player " + msg.conn.connectionId + ": " + JsonConvert.SerializeObject(playerCommandsMsg));
 			SendToAll(DG_MsgType.PlayerCommand, playerCommandsMsg);
 			Scheduler.I.OnPlayerCommand(playerCommandsMsg);
 		});
@@ -86,10 +84,12 @@ public class Server : MonoBehaviour {
 	}
 
 	public void SendServerCommandToClients(int tick, ServerCommands serverCommands) {
-		SendToAll(DG_MsgType.ServerCommand, new ServerCommandsMessage() {
+		var serverCommandsMessage = new ServerCommandsMessage() {
 			tick = tick,
 				commands = serverCommands
-		});
+		};
+		Debug.Log("SENDING MESSAGE ServerCommand: " + JsonConvert.SerializeObject(serverCommandsMessage));
+		SendToAll(DG_MsgType.ServerCommand, serverCommandsMessage);
 	}
 
 	void Update() {

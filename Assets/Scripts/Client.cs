@@ -55,11 +55,13 @@ public class Client : MonoBehaviour {
 	}
 
 	public void SendClientCommand(int tick, Commands commands) {
-		client.Send(DG_MsgType.PlayerCommand, new PlayerCommandsMessage() {
+		var playerCommandsMessage = new PlayerCommandsMessage() {
 			tick = tick,
-				commands = commands,
-				playerId = playerId
-		});
+			commands = commands,
+			playerId = playerId
+		};
+		Debug.Log("SENDING MESSAGE PlayerCommand: " + JsonConvert.SerializeObject(playerCommandsMessage));
+		client.Send(DG_MsgType.PlayerCommand, playerCommandsMessage);
 	}
 
 	void Update() {
