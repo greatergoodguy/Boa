@@ -21,12 +21,23 @@ public struct AllApplesReducer {
 
     public AllApplesState DoTick(GameState previousState, PlayerCommands commands) {
         var previousApples = previousState.apples;
+        var newApples = previousApples.all.ToList(); 
+        foreach(AppleState apple in previousApples.all) {
+            if(IsOnAppleOnHead(apple.position, previousState.snakes)) {
+                newApples.Remove(apple);
+            }
+        }
 
         return new AllApplesState(
-            previousApples.all
+            newApples
             .Concat(GetNewApples(previousState.tick))
             .ToArray()
         );
+    }
+
+    bool IsOnAppleOnHead(DG_Vector2 applePosition, AllSnakesState allSnakesState)
+    {
+        return allSnakesState.all.Any(x => x.headPosition == applePosition);
     }
 
     AppleState[] GetNewApples(int previousTick) {

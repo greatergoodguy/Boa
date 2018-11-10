@@ -22,6 +22,12 @@ public class AllApplesPresenter : MonoBehaviour, IPresenter<AllApplesState> {
 		while (apples.Count < allApplesState.all.Length) {
 			apples.Add(Instantiate(applePrefab, Vector3.zero, Quaternion.identity));
 		}
-		allApplesState.all.ZipDo(apples, (state, apple) => apple.transform.position = state.position.ToUnityVector2());
+
+        while (apples.Count > allApplesState.all.Length) {
+            Destroy(apples.Last());
+            apples.RemoveAt(apples.Count - 1);
+        }
+
+        allApplesState.all.ZipDo(apples, (state, apple) => apple.transform.position = state.position.ToUnityVector2());
 	}
 }
