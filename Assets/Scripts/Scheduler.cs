@@ -207,6 +207,7 @@ public class Scheduler : MonoBehaviour {
         safeTick++;
         // commandHistory[safeTick + 1] = new PlayerCommands(safeGameState.players);
         Present(safeGameState);
+        elapsedTime = 0;
     }
 
     // void RollbackToTick(int tick) {
