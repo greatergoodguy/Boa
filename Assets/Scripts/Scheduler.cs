@@ -106,7 +106,7 @@ public class Scheduler : MonoBehaviour {
     // TODO Move to new script that sets a variable whenever a player presses a key
     // then the Scheduler reaches out to read the input once per tick and clears it when it does
     void CheckLocalPlayerInput() {
-        if (commandHistory[safeTick + 1][Client.playerId].complete) return;
+        if (safeGameState.players.Contains(Client.playerId) == false) return;
         if (DG_Input.GoLeft()) {
             commandHistory.ChangeDirection(safeTick + 1, Client.I.client.connection.connectionId, DirectionEnum.Left);
         }
