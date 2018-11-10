@@ -14,7 +14,8 @@ public class Simulation {
             snakes: new AllSnakesState(
                 new SnakeState[0]
             ),
-            players: new int[0]
+            players : new int[0],
+            apples: new AllApplesState(new AppleState[0])
         );
     }
 
@@ -48,11 +49,13 @@ public struct GameState : IGameState {
     public readonly int tick;
     public readonly AllSnakesState snakes;
     public readonly int[] players;
+    public readonly AllApplesState apples;
 
-    public GameState(int tick, AllSnakesState snakes, int[] players) {
+    public GameState(int tick, AllSnakesState snakes, int[] players, AllApplesState apples) {
         this.tick = tick;
         this.snakes = snakes;
         this.players = players;
+        this.apples = apples;
     }
 }
 
@@ -63,7 +66,8 @@ struct GameStateReducer {
         return new GameState(
             tick: tick,
             snakes: AllSnakesReducer.I.DoTick(previousState, commands),
-            players: PlayersReducer.DoTick(previousState, commands)
+            players : PlayersReducer.DoTick(previousState, commands),
+            apples : AllApplesReducer.I.DoTick(previousState, commands)
         );
     }
 }

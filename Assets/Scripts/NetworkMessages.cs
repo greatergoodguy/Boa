@@ -16,6 +16,7 @@ public class JSONMessage : MessageBase {
 public class PlayerJoin : MessageBase {
     public int safeTick;
     public int playerStartTick;
+    public int playerId;
     public GameState gameState;
     public CommandHistory commandHistory;
 }

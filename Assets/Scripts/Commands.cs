@@ -4,11 +4,11 @@ using System.Linq;
 public class PlayerCommands : Dictionary<int, Commands> {
     public readonly ServerCommands serverCommands = new ServerCommands();
 
-    public PlayerCommands(int[] players) {
-        foreach (var playerId in players) {
-            this [playerId] = new Commands();
-        }
-    }
+    // public PlayerCommands(int[] players) {
+    //     foreach (var playerId in players) {
+    //         this [playerId] = new Commands();
+    //     }
+    // }
 }
 
 public class Commands {

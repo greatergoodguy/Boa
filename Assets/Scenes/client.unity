@@ -226,6 +226,7 @@ GameObject:
   - component: {fileID: 292539382}
   - component: {fileID: 292539381}
   - component: {fileID: 292539383}
+  - component: {fileID: 292539384}
   m_Layer: 0
   m_Name: Presenter
   m_TagString: Untagged
@@ -244,7 +245,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9256818ddbfe7a9478681ac2e17021ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isServer: 0
 --- !u!4 &292539382
 Transform:
   m_ObjectHideFlags: 0
@@ -270,6 +270,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serverDebugUIText: {fileID: 805718344}
+--- !u!114 &292539384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 292539380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b2a629e2b8efe84291ab7b2bac8e7eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  applePrefab: {fileID: 1749454114923262, guid: dcd8344db04d85a4b9facfb58f7ce0c0,
+    type: 2}
 --- !u!1 &395334621
 GameObject:
   m_ObjectHideFlags: 0
@@ -1161,7 +1174,7 @@ MonoBehaviour:
   m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
-  m_firstOverflowCharacterIndex: -1
+  m_firstOverflowCharacterIndex: 10
   m_linkedTextComponent: {fileID: 0}
   m_isLinkedTextComponent: 0
   m_isTextTruncated: 0
@@ -1189,7 +1202,7 @@ MonoBehaviour:
     spaceCount: 1
     wordCount: 2
     linkCount: 0
-    lineCount: 1
+    lineCount: 2
     pageCount: 1
     materialCount: 1
   m_havePropertiesChanged: 0

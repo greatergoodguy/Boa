@@ -20,7 +20,6 @@ public class Client : MonoBehaviour {
 
 	public void OnJoining() {
 		client = NetworkManager.singleton.client;
-		playerId = client.connection.connectionId;
 
 		RegisterHandlers();
 
@@ -37,6 +36,7 @@ public class Client : MonoBehaviour {
 		client.RegisterHandler(DG_MsgType.PlayerJoin, (NetworkMessage msg) => {
 			var gameStateMessage = msg.ReadMessage<PlayerJoin>();
 			Debug.Log("GOT MESSAGE PlayerJoin: " + JsonConvert.SerializeObject(gameStateMessage));
+			playerId = gameStateMessage.playerId;
 			Scheduler.I.LoadGameStateAndCommands(gameStateMessage);
 		});
 

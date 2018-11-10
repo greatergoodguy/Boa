@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Presenter : MonoBehaviour, IPresenter<GameState> {
-	public bool isServer;
-
 	void Start() {
 
 	}
@@ -16,8 +14,9 @@ public class Presenter : MonoBehaviour, IPresenter<GameState> {
 	public void Present(GameState gameState) {
 		ServerPresenter.I.Present(gameState);
 		
-		if (!isServer) {
+		if (Client.isClient) {
 			AllSnakesPresenter.I.Present(gameState.snakes);
+			AllApplesPresenter.I.Present(gameState.apples);
 		}
 	}
 }

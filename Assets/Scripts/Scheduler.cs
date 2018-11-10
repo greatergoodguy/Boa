@@ -34,7 +34,8 @@ public class Scheduler : MonoBehaviour {
             commandHistory = commandHistory,
                 gameState = safeGameState,
                 safeTick = safeTick,
-                playerStartTick = playerStartTick
+                playerStartTick = playerStartTick,
+                playerId = playerId,
         };
     }
 
@@ -50,7 +51,7 @@ public class Scheduler : MonoBehaviour {
         safeTick = gameStateMessage.safeTick;
         playerStartTick = gameStateMessage.playerStartTick;
         // commandHistory = gameStateMessage.commandHistory;
-        commandHistory[safeTick + 1] = new PlayerCommands(safeGameState.players);
+        // commandHistory[safeTick + 1] = new PlayerCommands(safeGameState.players);
         simulation.LoadGameState(safeTick, safeGameState);
         Go();
     }
@@ -64,7 +65,7 @@ public class Scheduler : MonoBehaviour {
 
     public void Go() {
         Debug.Log("Go safeTick: " + safeTick);
-        commandHistory[safeTick + 1] = new PlayerCommands(safeGameState.players);
+        // commandHistory[safeTick + 1] = new PlayerCommands(safeGameState.players);
         Present(safeGameState);
         running = true;
     }
@@ -75,14 +76,12 @@ public class Scheduler : MonoBehaviour {
 
     public void OnServerCommand(ServerCommandsMessage serverCommandsMessage) {
         if (!running) return;
-        commandHistory[serverCommandsMessage.tick].serverCommands.Merge(serverCommandsMessage.commands);
-        commandHistory[serverCommandsMessage.tick].serverCommands.complete = true;
+        commandHistory.ReceiveServerCommand(serverCommandsMessage);
     }
 
     public void OnPlayerCommand(PlayerCommandsMessage playerCommandsMessage) {
         if (!running) return;
-        commandHistory[playerCommandsMessage.tick][playerCommandsMessage.playerId] = playerCommandsMessage.commands;
-        commandHistory[playerCommandsMessage.tick][playerCommandsMessage.playerId].complete = true;
+        commandHistory.ReceiveOtherPlayerCommand(playerCommandsMessage);
     }
 
     void Update() {
@@ -141,7 +140,7 @@ public class Scheduler : MonoBehaviour {
         elapsedTime += Time.deltaTime;
 
         if (elapsedTime > 1 / ticksPerSecond) {
-            if (Client.isClient) DoLocalPlayerDefaultCommands();
+            if (Client.isClient) CompleteLocalPlayerCommands();
 
             // Debug.Log("DoNormalTickStuff safeGameState.players: " + safeGameState.players);
             if (HaveAllOtherClientCommandsForNextTick() == false) {
@@ -161,29 +160,29 @@ public class Scheduler : MonoBehaviour {
         }
     }
 
-    void DoLocalPlayerDefaultCommands() {
+    void CompleteLocalPlayerCommands() {
         if (safeTick + 1 < playerStartTick) return;
 
-        commandHistory[safeTick + 1][Client.playerId].complete = true;
+        commandHistory.CompletePlayersCommands(safeTick + 1, Client.playerId);
         Client.I.SendClientCommand(safeTick + 1, commandHistory[safeTick + 1][Client.playerId]);
     }
 
     void DoServerCommandsDefault() {
-        commandHistory[safeTick + 1].serverCommands.complete = true;
+        commandHistory.CompleteServerCommandsAtTick(safeTick + 1);
         Server.I.SendServerCommandToClients(safeTick + 1, commandHistory[safeTick + 1].serverCommands);
     }
 
     bool HaveAllOtherClientCommandsForNextTick() {
         Func<int, bool> NotLocalPlayer = (playerId) => playerId != Client.playerId;
 
-        Func<int, bool> HavePlayerInput = (playerId) => commandHistory[safeTick + 1][playerId].complete;
+        Func<int, bool> HavePlayerInput = (playerId) => commandHistory.HavePlayerInputForTick(safeTick + 1, playerId);
 
         // Debug.Log("HaveAllCommandsForNextTick safeGameState.players: " + safeGameState.players);
         return safeGameState.players.Where(NotLocalPlayer).All(HavePlayerInput);
     }
 
     bool HaveServerCommandsForNextTick() {
-        return commandHistory[safeTick + 1].serverCommands.complete;
+        return commandHistory.HaveServerCommandsForTick(safeTick + 1);
     }
 
     // void RollForwardToTick(int tick) {
@@ -195,7 +194,7 @@ public class Scheduler : MonoBehaviour {
         Toolbox.Log($"DoTick {safeTick} -> {safeTick + 1}");
         safeGameState = simulation.DoTick(commandHistory[safeTick + 1]);
         safeTick++;
-        commandHistory[safeTick + 1] = new PlayerCommands(safeGameState.players);
+        // commandHistory[safeTick + 1] = new PlayerCommands(safeGameState.players);
         Present(safeGameState);
     }
 

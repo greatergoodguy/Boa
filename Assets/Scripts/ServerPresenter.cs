@@ -22,6 +22,7 @@ public class ServerPresenter : MonoBehaviour, IPresenter<GameState> {
 		debugText += "tick: " + JsonConvert.SerializeObject(gameState.tick) + "\n";
 		debugText += "players: " + JsonConvert.SerializeObject(gameState.players) + "\n";
 		debugText += "snakes: " + JsonConvert.SerializeObject(gameState.snakes) + "\n";
+		debugText += "apples: " + JsonConvert.SerializeObject(gameState.apples) + "\n";
 		serverDebugUIText.text = debugText;
 	}
 }
