@@ -28,7 +28,7 @@ public class Simulation {
     }
 
     public GameState DoTick(PlayerCommands commands) {
-        Toolbox.Log($"Simulation DoTick {tick} -> {tick + 1}");
+        // Toolbox.Log($"Simulation DoTick {tick} -> {tick + 1}");
         tick++;
         previousGameStates[tick] = (GameState) GameStateReducer.I.DoTick(tick, previousGameStates[tick - 1], commands);
         return previousGameStates[tick];

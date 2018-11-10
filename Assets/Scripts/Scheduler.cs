@@ -98,7 +98,7 @@ public class Scheduler : MonoBehaviour {
         // if (manualTickDebugMode) {
         //     DoManualTickStuff();
         // } else {
-            DoNormalTickStuff();
+        DoNormalTickStuff();
         // }
     }
 
@@ -106,18 +106,19 @@ public class Scheduler : MonoBehaviour {
     // then the Scheduler reaches out to read the input once per tick and clears it when it does
     void CheckLocalPlayerInput() {
         if (safeGameState.players.Contains(Client.playerId) == false) return;
-        if (HaveLocalPlayerCommandsForNextTick()) return;
+        var tickToUse = safeTick + 1;
+        if (HaveLocalPlayerCommandsForNextTick()) tickToUse++;
         if (DG_Input.GoLeft()) {
-            commandHistory.ChangeDirection(safeTick + 1, Client.playerId, DirectionEnum.Left);
+            commandHistory.ChangeDirection(tickToUse, Client.playerId, DirectionEnum.Left);
         }
         if (DG_Input.GoUp()) {
-            commandHistory.ChangeDirection(safeTick + 1, Client.playerId, DirectionEnum.Up);
+            commandHistory.ChangeDirection(tickToUse, Client.playerId, DirectionEnum.Up);
         }
         if (DG_Input.GoRight()) {
-            commandHistory.ChangeDirection(safeTick + 1, Client.playerId, DirectionEnum.Right);
+            commandHistory.ChangeDirection(tickToUse, Client.playerId, DirectionEnum.Right);
         }
         if (DG_Input.GoDown()) {
-            commandHistory.ChangeDirection(safeTick + 1, Client.playerId, DirectionEnum.Down);
+            commandHistory.ChangeDirection(tickToUse, Client.playerId, DirectionEnum.Down);
         }
     }
 
@@ -171,6 +172,10 @@ public class Scheduler : MonoBehaviour {
 
     bool HaveLocalPlayerCommandsForNextTick() {
         return commandHistory.HavePlayerInputForTick(safeTick + 1, Client.playerId);
+    }
+
+    bool HaveLocalPlayerCommandsForNextNextTick() {
+        return commandHistory.HavePlayerInputForTick(safeTick + 2, Client.playerId);
     }
 
     void DoServerCommandsDefault() {

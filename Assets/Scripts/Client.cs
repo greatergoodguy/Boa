@@ -48,8 +48,8 @@ public class Client : MonoBehaviour {
 
 		client.RegisterHandler(DG_MsgType.PlayerCommand, (NetworkMessage msg) => {
 			var playerCommandsMessage = msg.ReadMessage<PlayerCommandsMessage>();
-			Debug.Log("GOT MESSAGE PlayerCommand: " + JsonConvert.SerializeObject(playerCommandsMessage));
 			if (playerCommandsMessage.playerId == playerId) return;
+			Debug.Log("GOT MESSAGE PlayerCommand: " + JsonConvert.SerializeObject(playerCommandsMessage));
 			Scheduler.I.OnPlayerCommand(playerCommandsMessage);
 		});
 	}
