@@ -33,7 +33,7 @@ public struct AllSnakesReducer {
         return new AllSnakesState(
             previousSnakes.all
                 .Select(x => SnakeReducer.I.DoTick(x, commands[x.ownerNetId].changeDirection))
-                .Concat(commands.serverCommands.newPlayerIds.Select(x => new SnakeState(new DG_Vector2(x, 0), new Direction(DirectionEnum.Up), true, x)))
+                .Concat(commands.serverCommands.newPlayerIds.Select(x => new SnakeState(new DG_Vector2(0, 0), new Direction(DirectionEnum.Up), true, x)))
                 .ToArray()
         );
     }
