@@ -9,7 +9,7 @@ public class Scheduler : MonoBehaviour {
     public static Scheduler I;
 
     public Presenter presenter;
-    float ticksPerSecond = 2;
+    float ticksPerSecond = 10;
 
     Simulation simulation = new Simulation();
     CommandHistory commandHistory = new CommandHistory();

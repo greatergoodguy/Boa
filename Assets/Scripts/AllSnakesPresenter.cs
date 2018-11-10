@@ -8,7 +8,7 @@ public class AllSnakesPresenter : MonoBehaviour, IPresenter<AllSnakesState> {
 
 	public GameObject snakePrefab;
 
-	List<GameObject> snakes = new List<GameObject>();
+	public Dictionary<int, SnakePresenter> snakePresenters = new Dictionary<int, SnakePresenter>();
 
 	void Awake() {
 		I = this;
@@ -18,10 +18,12 @@ public class AllSnakesPresenter : MonoBehaviour, IPresenter<AllSnakesState> {
 
 	}
 
-	public void Present(AllSnakesState gameState) {
-		while (snakes.Count < gameState.all.Length) {
-			snakes.Add(Instantiate(snakePrefab, Vector3.zero, Quaternion.identity));
+	public void Present(AllSnakesState allSnakesState) {
+		foreach (var snakeState in allSnakesState.all) {
+			if (snakePresenters.ContainsKey(snakeState.ownerId) == false) {
+				snakePresenters[snakeState.ownerId] = new GameObject().AddComponent<SnakePresenter>();
+			}
+			snakePresenters[snakeState.ownerId].Present(snakeState);
 		}
-		gameState.all.ZipDo(snakes, (state, snake) => snake.transform.position = state.position.ToUnityVector2());
 	}
 }

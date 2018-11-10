@@ -39,6 +39,14 @@ public struct DG_Vector2 {
         return new DG_Vector2(a.x - b.x, a.y - b.y);
     }
 
+    public static bool operator ==(DG_Vector2 a, DG_Vector2 b) {
+        return a.x == b.x && a.y == b.y;
+    }
+
+    public static bool operator !=(DG_Vector2 a, DG_Vector2 b) {
+        return a.x != b.x || a.y != b.y;
+    }
+
     public Vector2 ToUnityVector2() => new Vector2(x, y);
 }
 
