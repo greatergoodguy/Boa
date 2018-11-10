@@ -33,7 +33,7 @@ public struct AllSnakesReducer {
 
         return new AllSnakesState(
             previousSnakes.all
-            .Select(x => SnakeReducer.I.DoTick(previousState, x, commands[x.ownerId].changeDirection))
+            .Select(x => SnakeReducer.I.DoTick(previousState, x, commands.playerCommands[x.ownerId].changeDirection))
             .Concat(commands.serverCommands.newPlayerIds.Select(x => new SnakeState(new DG_Vector2(0, 0), new Direction(DirectionEnum.Up), true, x, new DG_Vector2[0])))
             .ToArray()
         );
@@ -57,8 +57,10 @@ public struct SnakeReducer {
 
         // Move
         var newHeadPosition = previousSnake.headPosition + newDirection.GetMoveVector();
-        newTails = newTails.Skip(newTails.Length - 1).Concat(newTails.Take(newTails.Length - 1)).ToArray();
-        newTails[0] = previousSnake.headPosition;
+        if (newTails.Length > 0) {
+            newTails = newTails.Skip(newTails.Length - 1).Concat(newTails.Take(newTails.Length - 1)).ToArray();
+            newTails[0] = previousSnake.headPosition;
+        }
 
         return new SnakeState(
             newHeadPosition,

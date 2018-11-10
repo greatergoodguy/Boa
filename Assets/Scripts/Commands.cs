@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class PlayerCommands : Dictionary<int, Commands> {
-    public readonly ServerCommands serverCommands = new ServerCommands();
+public class PlayerCommands {
+    public ServerCommands serverCommands = new ServerCommands();
+    public Dictionary<int, Commands> playerCommands = new Dictionary<int, Commands>();
 
     // public PlayerCommands(int[] players) {
     //     foreach (var playerId in players) {

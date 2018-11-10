@@ -18,7 +18,7 @@ public class PlayerJoin : MessageBase {
     public int playerStartTick;
     public int playerId;
     public GameState gameState;
-    public CommandHistory commandHistory;
+    public string commandHistoryJSON;
 }
 
 public class PlayerCommandsMessage : MessageBase {

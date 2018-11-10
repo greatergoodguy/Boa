@@ -435,7 +435,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22400762, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000015258789
+      value: -0.000022888184
       objectReference: {fileID: 0}
     - target: {fileID: 22426080, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 2}
       propertyPath: m_AnchorMin.y
@@ -605,7 +605,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9256818ddbfe7a9478681ac2e17021ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isServer: 1
 --- !u!1001 &1889085322
 Prefab:
   m_ObjectHideFlags: 0
