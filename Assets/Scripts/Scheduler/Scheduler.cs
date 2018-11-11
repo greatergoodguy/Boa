@@ -15,7 +15,6 @@ public class Scheduler : MonoBehaviour {
     CommandHistory commandHistory = new CommandHistory();
     Clock clock;
 
-    // bool manualTickDebugMode;
     int safeTick = 0;
     int playerStartTick = int.MaxValue;
     GameState safeGameState;
@@ -82,21 +81,11 @@ public class Scheduler : MonoBehaviour {
 
         if (Client.isClient) {
             CheckLocalPlayerInput();
-
-            // if (DG_Input.ToggleManualTick()) {
-            //     manualTickDebugMode = !manualTickDebugMode;
-            // }
         }
 
-        // if (manualTickDebugMode) {
-        //     DoManualTickStuff();
-        // } else {
         DoNormalTickStuff();
-        // }
     }
 
-    // TODO Move to new script that sets a variable whenever a player presses a key
-    // then the Scheduler reaches out to read the input once per tick and clears it when it does
     void CheckLocalPlayerInput() {
         if (safeGameState.players.Contains(Client.playerId) == false) return;
 
@@ -105,22 +94,6 @@ public class Scheduler : MonoBehaviour {
         if (HaveLocalPlayerCommandsForNextTick()) tickToUse++;
 
         ClientCommander.CheckLocalPlayerInput(commandHistory.GetCommandsForPlayer(tickToUse, Client.playerId));
-    }
-
-    void DoManualTickStuff() {
-        // if (simulation.tick != safeTick && DG_Input.NextTick()) {
-        //     if (DG_Input.NextTickBig()) {
-        //         RollForwardToTick(Mathf.Min(simulation.tick + 10, safeTick));
-        //     } else {
-        //         DoTick();
-        //     }
-        // } else if (DG_Input.BackTick() && simulation.tick > 0) {
-        //     // if (DG_Input.BackTickBig()) {
-        //     //     RollbackToTick(Mathf.Max(simulation.tick - 10, 0));
-        //     // } else {
-        //     //     RollbackToTick(simulation.tick - 1);
-        //     // }
-        // }
     }
 
     void DoNormalTickStuff() {
@@ -172,11 +145,6 @@ public class Scheduler : MonoBehaviour {
         return commandHistory.HaveServerCommandsForTick(safeTick + 1);
     }
 
-    // void RollForwardToTick(int tick) {
-    //     Toolbox.Log($"RollForwardToTick {simulation.tick} -> {tick}");
-    //     while (simulation.tick < tick) DoTick();
-    // }
-
     void DoTick() {
         Toolbox.Log($"DoTick {safeTick} -> {safeTick + 1}");
         safeGameState = simulation.DoTick(commandHistory.GetCommands(safeTick + 1));
@@ -184,13 +152,6 @@ public class Scheduler : MonoBehaviour {
         Present(safeGameState);
         clock.Reset();
     }
-
-    // void RollbackToTick(int tick) {
-    //     Toolbox.Log($"RollbackToTick {safeTick} -> {tick}");
-    //     safeGameState = simulation.RollbackToTick(tick);
-    //     safeTick = tick;
-    //     Present(safeGameState);
-    // }
 
     void Present(GameState gameState) {
         presenter.Present(gameState);
