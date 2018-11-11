@@ -6,4 +6,8 @@ public class GameOffline : GameStateMachine {
 	public override GameStateMachine GetNextState() {
 		return null;
 	}
+
+	public override void Enter() {
+		Scheduler.I.Go();
+	}
 }

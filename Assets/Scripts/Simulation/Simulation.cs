@@ -6,20 +6,10 @@ public class Simulation {
 
     PreviousGameStates previousGameStates = new PreviousGameStates();
 
-    public Simulation() {
+    public Simulation(GameState initialState) {
         tick = 0;
-        // Initial GameState
-        previousGameStates[tick] = new GameState(
-            tick: 0,
-            snakes: new AllSnakesState(
-                new SnakeState[0]
-            ),
-            players : new int[0],
-            apples: new AllApplesState(new AppleState[0])
-        );
+        previousGameStates[0] = initialState;
     }
-
-    public GameState GetInitialGameState() => previousGameStates[0];
 
     public void LoadGameState(int tick, GameState gameState) {
         this.tick = tick;
