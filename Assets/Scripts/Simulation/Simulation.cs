@@ -30,12 +30,14 @@ public struct GameState {
     public readonly AllSnakesState snakes;
     public readonly int[] players;
     public readonly AllApplesState apples;
+    public readonly DG_Vector2[] walls;
 
-    public GameState(int tick, AllSnakesState snakes, int[] players, AllApplesState apples) {
+    public GameState(int tick, AllSnakesState snakes, int[] players, AllApplesState apples, DG_Vector2[] walls) {
         this.tick = tick;
         this.snakes = snakes;
         this.players = players;
         this.apples = apples;
+        this.walls = walls;
     }
 }
 
@@ -46,8 +48,9 @@ struct GameStateReducer {
         return new GameState(
             tick: tick,
             snakes: AllSnakesReducer.I.DoTick(previousState, commands),
-            players : PlayersReducer.DoTick(previousState, commands),
-            apples : AllApplesReducer.I.DoTick(previousState, commands)
+            players: PlayersReducer.DoTick(previousState, commands),
+            apples: AllApplesReducer.I.DoTick(previousState, commands),
+            walls: previousState.walls
         );
     }
 }

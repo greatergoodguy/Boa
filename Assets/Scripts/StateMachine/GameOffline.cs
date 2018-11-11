@@ -11,7 +11,7 @@ public class GameOffline : GameStateMachine {
 		isOffline = true;
 		quitButton = false;
 		GameUI.I.ToggleInGameMenu(true);
-		Scheduler.I.Go(InitialGameStates.OfflineInitialGameState);
+		Scheduler.I.Go(InitialGameStates.OfflineInitialGameState, 0);
 	}
 
 	public override void Exit() {

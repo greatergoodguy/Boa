@@ -95,7 +95,7 @@ public class Server : MonoBehaviour {
 	}
 
 	void OnServerStart() {
-		scheduler.Go(InitialGameStates.ServerInitialGameState);
+		scheduler.Go(InitialGameStates.ServerInitialGameState, -1);
 	}
 
 	public void SendServerCommandToClients(int tick, ServerCommands serverCommands) {

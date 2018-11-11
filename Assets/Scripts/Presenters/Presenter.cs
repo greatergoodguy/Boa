@@ -9,6 +9,7 @@ public class Presenter : MonoBehaviour, IPresenter<GameState> {
 		if (Client.isClient) {
 			AllSnakesPresenter.I.Present(gameState.snakes);
 			AllApplesPresenter.I.Present(gameState.apples);
+			WallsPresenter.I.Present(gameState.walls);
 		}
 	}
 
@@ -18,6 +19,7 @@ public class Presenter : MonoBehaviour, IPresenter<GameState> {
 		if (Client.isClient) {
 			AllSnakesPresenter.I.Clean();
 			AllApplesPresenter.I.Clean();
+			WallsPresenter.I.Clean();
 		}
 	}
 }

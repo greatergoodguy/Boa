@@ -18,6 +18,7 @@ public class Scheduler : MonoBehaviour {
     int safeTick = 0;
     int playerStartTick = int.MaxValue;
     bool running = false;
+    int localPlayerId;
 
     void Awake() {
         Debug.Log("Awake safeTick: " + safeTick);
@@ -51,14 +52,15 @@ public class Scheduler : MonoBehaviour {
         Debug.Log("LoadGameStateAndCommands safeTick: " + safeTick);
         playerStartTick = gameStateMessage.playerStartTick;
         commandHistory = JsonConvert.DeserializeObject<CommandHistory>(gameStateMessage.commandHistoryJSON);
-        Go(gameStateMessage.gameState, gameStateMessage.safeTick);
+        Go(gameStateMessage.gameState, gameStateMessage.playerId, gameStateMessage.safeTick);
     }
 
-    public void Go(GameState initialGameState, int tick = 0) {
+    public void Go(GameState initialGameState, int localPlayerId, int tick = 0) {
         Debug.Log("Go initialGameState safeTick: " + safeTick);
         simulation = new Simulation(initialGameState, tick);
         safeGameState = initialGameState;
         safeTick = tick;
+        this.localPlayerId = localPlayerId;
         Go();
     }
 
@@ -94,7 +96,7 @@ public class Scheduler : MonoBehaviour {
     void Update() {
         if (!running) return;
 
-        if (Client.isClient) {
+        if (Client.isClient || GameOffline.isOffline) {
             CheckLocalPlayerInput();
         }
 
@@ -102,13 +104,13 @@ public class Scheduler : MonoBehaviour {
     }
 
     void CheckLocalPlayerInput() {
-        if (safeGameState.players.Contains(Client.playerId) == false) return;
+        if (safeGameState.players.Contains(localPlayerId) == false) return;
 
         var tickToUse = safeTick + 1;
 
         if (HaveLocalPlayerCommandsForNextTick()) tickToUse++;
 
-        ClientCommander.CheckLocalPlayerInput(commandHistory.GetCommandsForPlayer(tickToUse, Client.playerId));
+        ClientCommander.CheckLocalPlayerInput(commandHistory.GetCommandsForPlayer(tickToUse, localPlayerId));
     }
 
     void DoNormalTickStuff() {
@@ -119,7 +121,10 @@ public class Scheduler : MonoBehaviour {
     }
 
     bool HaveAllRequiredCommands() {
-        if (GameOffline.isOffline) return true;
+        if (GameOffline.isOffline) {
+            commandHistory.CompletePlayersCommands(safeTick + 1, localPlayerId);
+            return true;
+        }
 
         if (Client.isClient) CompleteLocalPlayerCommands();
 
@@ -142,13 +147,13 @@ public class Scheduler : MonoBehaviour {
         if (safeTick + 1 < playerStartTick) return;
         if (HaveLocalPlayerCommandsForNextTick()) return;
 
-        commandHistory.CompletePlayersCommands(safeTick + 1, Client.playerId);
-        Client.I.SendClientCommand(safeTick + 1, commandHistory.GetCommandsForPlayer(safeTick + 1, Client.playerId));
+        commandHistory.CompletePlayersCommands(safeTick + 1, localPlayerId);
+        Client.I.SendClientCommand(safeTick + 1, commandHistory.GetCommandsForPlayer(safeTick + 1, localPlayerId));
     }
 
-    bool HaveLocalPlayerCommandsForNextTick() => commandHistory.HavePlayerInputForTick(safeTick + 1, Client.playerId);
+    bool HaveLocalPlayerCommandsForNextTick() => commandHistory.HavePlayerInputForTick(safeTick + 1, localPlayerId);
 
-    bool HaveLocalPlayerCommandsForNextNextTick() => commandHistory.HavePlayerInputForTick(safeTick + 2, Client.playerId);
+    bool HaveLocalPlayerCommandsForNextNextTick() => commandHistory.HavePlayerInputForTick(safeTick + 2, localPlayerId);
 
     void DoServerCommandsDefault() {
         commandHistory.CompleteServerCommandsAtTick(safeTick + 1);
@@ -156,7 +161,7 @@ public class Scheduler : MonoBehaviour {
     }
 
     bool HaveAllOtherClientCommandsForNextTick() {
-        Func<int, bool> NotLocalPlayer = (playerId) => playerId != Client.playerId;
+        Func<int, bool> NotLocalPlayer = (playerId) => playerId != localPlayerId;
 
         Func<int, bool> HavePlayerInput = (playerId) => commandHistory.HavePlayerInputForTick(safeTick + 1, playerId);
 

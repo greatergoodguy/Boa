@@ -347,8 +347,9 @@ GameObject:
   - component: {fileID: 292539383}
   - component: {fileID: 292539384}
   - component: {fileID: 292539385}
+  - component: {fileID: 292539386}
   m_Layer: 0
-  m_Name: Presenter
+  m_Name: Presenters
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -390,6 +391,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serverDebugUIText: {fileID: 805718344}
+  verbose: 0
 --- !u!114 &292539384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -416,6 +418,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   snakePrefab: {fileID: 1749454114923262, guid: 2c1f8b00a77da8e4abe37606df7fba9b,
     type: 2}
+--- !u!114 &292539386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 292539380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 969e88cc0a2d2f242ae6e854f30cc018, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallPrefab: {fileID: 1749454114923262, guid: 90cd72256e4502947b9a6d0aaae06da6, type: 2}
 --- !u!1 &321499752
 GameObject:
   m_ObjectHideFlags: 0

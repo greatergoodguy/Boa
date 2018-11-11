@@ -1,7 +1,7 @@
 public class Clock {
     public float elapsedTime { get; private set; }
 
-    float ticksPerSecond = 1;
+    float ticksPerSecond = 10;
 
     public bool Tock(float delta) {
         elapsedTime += delta;
