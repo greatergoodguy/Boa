@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public struct AllSnakesState : IGameState {
+public struct AllSnakesState {
     public readonly SnakeState[] all;
 
     public AllSnakesState(SnakeState[] snakes) {
@@ -9,7 +9,7 @@ public struct AllSnakesState : IGameState {
     }
 }
 
-public struct SnakeState : IGameState {
+public struct SnakeState {
     public readonly DG_Vector2 headPosition;
     public readonly Direction direction;
     public readonly bool isAlive;

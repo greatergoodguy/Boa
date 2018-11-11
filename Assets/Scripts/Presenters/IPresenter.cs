@@ -1,3 +1,3 @@
-﻿public interface IPresenter<T> where T : IGameState {
+﻿public interface IPresenter<T> {
 	void Present(T gameState);
 }

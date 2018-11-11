@@ -1,6 +1,6 @@
 using System.Linq;
 
-public struct AllApplesState : IGameState {
+public struct AllApplesState {
     public readonly AppleState[] all;
 
     public AllApplesState(AppleState[] apples) {
@@ -8,7 +8,7 @@ public struct AllApplesState : IGameState {
     }
 }
 
-public struct AppleState : IGameState {
+public struct AppleState {
     public readonly DG_Vector2 position;
 
     public AppleState(DG_Vector2 position) {

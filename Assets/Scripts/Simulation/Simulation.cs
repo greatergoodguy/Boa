@@ -4,7 +4,7 @@ using System.Linq;
 public class Simulation {
     public int tick { get; private set; }
 
-    PreviousGameStates previousGameStates = new PreviousGameStates();
+    Dictionary<int, GameState> previousGameStates = new Dictionary<int, GameState>();
 
     public Simulation(GameState initialState, int tick = 0) {
         previousGameStates[tick] = initialState;
@@ -25,11 +25,7 @@ public class Simulation {
     }
 }
 
-class PreviousGameStates : Dictionary<int, GameState> { }
-
-public interface IGameState { }
-
-public struct GameState : IGameState {
+public struct GameState {
     public readonly int tick;
     public readonly AllSnakesState snakes;
     public readonly int[] players;
