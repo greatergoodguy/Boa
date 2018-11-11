@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 public class Client : MonoBehaviour {
 	public static Client I;
 	public static bool isClient;
-	public static int playerId;
+	public static int playerId = -1;
 
 	public NetworkClient client { get; private set; }
 
@@ -57,8 +57,8 @@ public class Client : MonoBehaviour {
 	public void SendClientCommand(int tick, Commands commands) {
 		var playerCommandsMessage = new PlayerCommandsMessage() {
 			tick = tick,
-			commands = commands,
-			playerId = playerId
+				commands = commands,
+				playerId = playerId
 		};
 		Debug.Log("SENDING MESSAGE PlayerCommand: " + JsonConvert.SerializeObject(playerCommandsMessage));
 		client.Send(DG_MsgType.PlayerCommand, playerCommandsMessage);
@@ -66,5 +66,12 @@ public class Client : MonoBehaviour {
 
 	void Update() {
 
+	}
+
+	public void Disconnect() {
+		playerId = -1;
+		client.Disconnect();
+		client.Shutdown();
+		client = null;
 	}
 }
