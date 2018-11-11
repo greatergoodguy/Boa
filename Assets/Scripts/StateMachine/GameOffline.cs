@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GameOffline : GameStateMachine {
-	public override GameStateMachine GetNextState() {
-		return null;
+	public override void Enter() {
+		Scheduler.I.Go(InitialGameStates.OfflineInitialGameState);
 	}
 
-	public override void Enter() {
-		Scheduler.I.Go();
+	public override GameStateMachine GetNextState() {
+		return null;
 	}
 }

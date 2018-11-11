@@ -9,12 +9,12 @@ public class Scheduler : MonoBehaviour {
     public static Scheduler I;
 
     public Presenter presenter;
-    float ticksPerSecond = 10;
 
     Simulation simulation;
     CommandHistory commandHistory = new CommandHistory();
 
-    bool manualTickDebugMode;
+    // bool manualTickDebugMode;
+    float ticksPerSecond = 10;
     float elapsedTime = 0;
     int safeTick = 0;
     int playerStartTick = int.MaxValue;
@@ -32,10 +32,10 @@ public class Scheduler : MonoBehaviour {
 
         return new PlayerJoin() {
             commandHistoryJSON = JsonConvert.SerializeObject(commandHistory),
-                gameState = safeGameState,
-                safeTick = safeTick,
-                playerStartTick = playerStartTick,
-                playerId = playerId,
+            gameState = safeGameState,
+            safeTick = safeTick,
+            playerStartTick = playerStartTick,
+            playerId = playerId,
         };
     }
 
@@ -47,31 +47,20 @@ public class Scheduler : MonoBehaviour {
 
     public void LoadGameStateAndCommands(PlayerJoin gameStateMessage) {
         Debug.Log("LoadGameStateAndCommands safeTick: " + safeTick);
-        safeGameState = gameStateMessage.gameState;
-        safeTick = gameStateMessage.safeTick;
         playerStartTick = gameStateMessage.playerStartTick;
         commandHistory = JsonConvert.DeserializeObject<CommandHistory>(gameStateMessage.commandHistoryJSON);
-        simulation.LoadGameState(safeTick, safeGameState);
+        Go(gameStateMessage.gameState, gameStateMessage.safeTick);
+    }
+
+    public void Go(GameState initialGameState, int tick = 0) {
+        Debug.Log("Go initialGameState safeTick: " + safeTick);
+        simulation = new Simulation(initialGameState, tick);
+        safeGameState = initialGameState;
+        safeTick = tick;
         Go();
     }
 
-    public void GoServer() {
-        Debug.Log("GoServer safeTick: " + safeTick);
-        simulation = new Simulation(InitialGameStates.ServerInitialGameState);
-        safeGameState = InitialGameStates.ServerInitialGameState;
-        safeTick = 0;
-        Go();
-    }
-
-    public void GoOffline() {
-        Debug.Log("GoOffline safeTick: " + safeTick);
-        simulation = new Simulation(InitialGameStates.OfflineInitialGameState);
-        safeGameState = InitialGameStates.OfflineInitialGameState;
-        safeTick = 0;
-        Go();
-    }
-
-    public void Go() {
+    void Go() {
         Debug.Log("Go safeTick: " + safeTick);
         Present(safeGameState);
         running = true;
@@ -113,8 +102,11 @@ public class Scheduler : MonoBehaviour {
     // then the Scheduler reaches out to read the input once per tick and clears it when it does
     void CheckLocalPlayerInput() {
         if (safeGameState.players.Contains(Client.playerId) == false) return;
+
         var tickToUse = safeTick + 1;
+
         if (HaveLocalPlayerCommandsForNextTick()) tickToUse++;
+
         if (DG_Input.GoLeft()) {
             commandHistory.ChangeDirection(tickToUse, Client.playerId, DirectionEnum.Left);
         }
@@ -151,7 +143,6 @@ public class Scheduler : MonoBehaviour {
         if (elapsedTime > 1 / ticksPerSecond) {
             if (Client.isClient) CompleteLocalPlayerCommands();
 
-            // Debug.Log("DoNormalTickStuff safeGameState.players: " + safeGameState.players);
             if (HaveAllOtherClientCommandsForNextTick() == false) {
                 Debug.Log("Waiting for client commands...");
                 return;
@@ -177,13 +168,9 @@ public class Scheduler : MonoBehaviour {
         Client.I.SendClientCommand(safeTick + 1, commandHistory[safeTick + 1].playerCommands[Client.playerId]);
     }
 
-    bool HaveLocalPlayerCommandsForNextTick() {
-        return commandHistory.HavePlayerInputForTick(safeTick + 1, Client.playerId);
-    }
+    bool HaveLocalPlayerCommandsForNextTick() => commandHistory.HavePlayerInputForTick(safeTick + 1, Client.playerId);
 
-    bool HaveLocalPlayerCommandsForNextNextTick() {
-        return commandHistory.HavePlayerInputForTick(safeTick + 2, Client.playerId);
-    }
+    bool HaveLocalPlayerCommandsForNextNextTick() => commandHistory.HavePlayerInputForTick(safeTick + 2, Client.playerId);
 
     void DoServerCommandsDefault() {
         commandHistory.CompleteServerCommandsAtTick(safeTick + 1);
@@ -195,7 +182,6 @@ public class Scheduler : MonoBehaviour {
 
         Func<int, bool> HavePlayerInput = (playerId) => commandHistory.HavePlayerInputForTick(safeTick + 1, playerId);
 
-        // Debug.Log("HaveAllCommandsForNextTick safeGameState.players: " + safeGameState.players);
         return safeGameState.players.Where(NotLocalPlayer).All(HavePlayerInput);
     }
 
@@ -212,7 +198,6 @@ public class Scheduler : MonoBehaviour {
         Toolbox.Log($"DoTick {safeTick} -> {safeTick + 1}");
         safeGameState = simulation.DoTick(commandHistory[safeTick + 1]);
         safeTick++;
-        // commandHistory[safeTick + 1] = new PlayerCommands(safeGameState.players);
         Present(safeGameState);
         elapsedTime = 0;
     }
@@ -225,7 +210,7 @@ public class Scheduler : MonoBehaviour {
     // }
 
     void Present(GameState gameState) {
-        presenter?.Present(gameState);
+        presenter.Present(gameState);
         ServerPresenter.elapsedTime = elapsedTime;
     }
 }

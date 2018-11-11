@@ -80,7 +80,7 @@ public class Server : MonoBehaviour {
 	}
 
 	void OnServerStart() {
-		scheduler.GoServer();
+		scheduler.Go(InitialGameStates.ServerInitialGameState);
 	}
 
 	public void SendServerCommandToClients(int tick, ServerCommands serverCommands) {

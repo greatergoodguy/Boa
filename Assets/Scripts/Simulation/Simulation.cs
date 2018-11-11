@@ -6,15 +6,9 @@ public class Simulation {
 
     PreviousGameStates previousGameStates = new PreviousGameStates();
 
-    public Simulation(GameState initialState) {
-        tick = 0;
-        previousGameStates[0] = initialState;
-    }
-
-    public void LoadGameState(int tick, GameState gameState) {
+    public Simulation(GameState initialState, int tick = 0) {
+        previousGameStates[tick] = initialState;
         this.tick = tick;
-        previousGameStates.Clear();
-        previousGameStates[this.tick] = gameState;
     }
 
     public GameState DoTick(PlayerCommands commands) {
