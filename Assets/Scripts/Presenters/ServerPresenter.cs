@@ -13,8 +13,11 @@ public class ServerPresenter : MonoBehaviour, IPresenter<GameState> {
 
 	public Text serverDebugUIText;
 
+	string initialText;
+
 	void Awake() {
 		I = this;
+		initialText = serverDebugUIText.text;
 	}
 
 	void Update() {
@@ -42,5 +45,9 @@ public class ServerPresenter : MonoBehaviour, IPresenter<GameState> {
 			sb.Append(b.ToString("X2"));
 
 		return sb.ToString();
+	}
+
+	public void Clean() {
+		serverDebugUIText.text = initialText;
 	}
 }

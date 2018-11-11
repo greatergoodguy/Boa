@@ -63,6 +63,13 @@ public class Scheduler : MonoBehaviour {
 
     public void Stop() {
         running = false;
+        presenter.Clean();
+        simulation = null;
+        commandHistory.Clear();
+        clock = null;
+        safeGameState = new GameState();
+        safeTick = 0;
+        playerStartTick = int.MaxValue;
     }
 
     public void OnServerCommand(ServerCommandsMessage serverCommandsMessage) {
@@ -118,7 +125,7 @@ public class Scheduler : MonoBehaviour {
             Debug.Log("Waiting for server commands...");
             return false;
         }
-        
+
         return true;
     }
 

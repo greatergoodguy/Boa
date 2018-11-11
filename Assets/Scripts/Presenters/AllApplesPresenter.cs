@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -23,11 +24,16 @@ public class AllApplesPresenter : MonoBehaviour, IPresenter<AllApplesState> {
 			apples.Add(Instantiate(applePrefab, Vector3.zero, Quaternion.identity));
 		}
 
-        while (apples.Count > allApplesState.all.Length) {
-            Destroy(apples.Last());
-            apples.RemoveAt(apples.Count - 1);
-        }
+		while (apples.Count > allApplesState.all.Length) {
+			Destroy(apples.Last());
+			apples.RemoveAt(apples.Count - 1);
+		}
 
-        allApplesState.all.ZipDo(apples, (state, apple) => apple.transform.position = state.position.ToUnityVector2());
+		allApplesState.all.ZipDo(apples, (state, apple) => apple.transform.position = state.position.ToUnityVector2());
+	}
+
+	public void Clean() {
+		apples.ForEach(x => Destroy(x));
+		apples.Clear();
 	}
 }

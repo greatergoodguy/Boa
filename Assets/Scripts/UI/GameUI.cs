@@ -6,6 +6,7 @@ public class GameUI : MonoBehaviour {
 	public static GameUI I;
 
 	public GameObject mainMenu;
+	public GameObject inGameMenu;
 
 	void Awake() {
 		I = this;
@@ -17,5 +18,9 @@ public class GameUI : MonoBehaviour {
 
 	public void ToggleMainMenu(bool active) {
 		mainMenu.SetActive(active);
+	}
+
+	public void ToggleInGameMenu(bool active) {
+		inGameMenu.SetActive(active);
 	}
 }

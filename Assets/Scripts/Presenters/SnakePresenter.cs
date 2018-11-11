@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -23,5 +24,11 @@ public class SnakePresenter : MonoBehaviour, IPresenter<SnakeState> {
 			tails.Add(Instantiate(AllSnakesPresenter.I.snakePrefab, Vector3.zero, Quaternion.identity));
 		}
 		tails.ZipDo(snakeState.tails, (tail, state) => tail.transform.transform.position = state.ToUnityVector2());
+	}
+
+	public void Clean() {
+		Destroy(head);
+		tails.ForEach(x => Destroy(x));
+		tails.Clear();
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -25,5 +26,12 @@ public class AllSnakesPresenter : MonoBehaviour, IPresenter<AllSnakesState> {
 			}
 			snakePresenters[snakeState.ownerId].Present(snakeState);
 		}
+	}
+
+	public void Clean() {
+		foreach (var snakePresenter in snakePresenters.Values) {
+			snakePresenter.Clean();
+		}
+		snakePresenters.Clear();
 	}
 }

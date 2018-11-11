@@ -53,6 +53,10 @@ public class CommandHistory {
         return commands.ContainsKey(tick) && commands[tick].serverCommands.complete;
     }
 
+    public void Clear() {
+        commands.Clear();
+    }
+
     void EnsureCommandsExistForPlayer(int tick, int playerId) {
         EnsureCommandsExistForTick(tick);
         if (commands[tick].playerCommands.ContainsKey(playerId) == false) {
