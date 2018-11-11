@@ -122,6 +122,7 @@ GameObject:
   m_Component:
   - component: {fileID: 43877730}
   - component: {fileID: 43877729}
+  - component: {fileID: 43877731}
   m_Layer: 0
   m_Name: Scheduler
   m_TagString: Untagged
@@ -141,6 +142,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   presenter: {fileID: 292539381}
+  commander: {fileID: 0}
 --- !u!4 &43877730
 Transform:
   m_ObjectHideFlags: 0
@@ -154,6 +156,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &43877731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 43877728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70ba1db35faf4fe4c98bffa0df07d094, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &166038849
 GameObject:
   m_ObjectHideFlags: 0

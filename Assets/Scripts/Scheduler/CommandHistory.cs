@@ -1,56 +1,68 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class CommandHistory : Dictionary<int, PlayerCommands> {
-    public void ChangeDirection(int tick, int playerId, DirectionEnum direction) {
+public class CommandHistory {
+    Dictionary<int, PlayerCommands> commands = new Dictionary<int, PlayerCommands>();
+    
+    public Commands GetCommandsForPlayer(int tick, int playerId) {
         EnsureCommandsExistForPlayer(tick, playerId);
-        this [tick].playerCommands[playerId].ChangeDirection(direction);
+        return commands[tick].playerCommands[playerId];
+    }
+
+    public ServerCommands GetServerCommands(int tick) {
+        EnsureCommandsExistForTick(tick);
+        return commands[tick].serverCommands;
+    }
+
+    public PlayerCommands GetCommands(int tick) {
+        EnsureCommandsExistForTick(tick);
+        return commands[tick];
     }
 
     public void AddPlayer(int tick, int id) {
         EnsureCommandsExistForTick(tick);
-        this [tick].serverCommands.newPlayerIds = this [tick].serverCommands.newPlayerIds.Concat(new int[] { id }).ToArray();
-        this [tick].playerCommands[id] = new Commands();
+        commands[tick].serverCommands.newPlayerIds = commands[tick].serverCommands.newPlayerIds.Concat(new int[] { id }).ToArray();
+        commands[tick].playerCommands[id] = new Commands();
     }
 
     public void ReceiveOtherPlayerCommand(PlayerCommandsMessage playerCommandsMessage) {
         EnsureCommandsExistForTick(playerCommandsMessage.tick);
-        this [playerCommandsMessage.tick].playerCommands[playerCommandsMessage.playerId] = playerCommandsMessage.commands;
+        commands[playerCommandsMessage.tick].playerCommands[playerCommandsMessage.playerId] = playerCommandsMessage.commands;
     }
 
     public void ReceiveServerCommand(ServerCommandsMessage serverCommandsMessage) {
         EnsureCommandsExistForTick(serverCommandsMessage.tick);
-        this [serverCommandsMessage.tick].serverCommands.Merge(serverCommandsMessage.commands);
+        commands[serverCommandsMessage.tick].serverCommands.Merge(serverCommandsMessage.commands);
     }
 
     public void CompletePlayersCommands(int tick, int playerId) {
         EnsureCommandsExistForPlayer(tick, playerId);
-        this [tick].playerCommands[playerId].SetComplete();
+        commands[tick].playerCommands[playerId].SetComplete();
     }
 
     public void CompleteServerCommandsAtTick(int tick) {
         EnsureCommandsExistForTick(tick);
-        this [tick].serverCommands.complete = true;
+        commands[tick].serverCommands.complete = true;
     }
 
     public bool HavePlayerInputForTick(int tick, int playerId) {
-        return this.ContainsKey(tick) && this [tick].playerCommands.ContainsKey(playerId) && this [tick].playerCommands[playerId].complete;
+        return commands.ContainsKey(tick) && commands[tick].playerCommands.ContainsKey(playerId) && commands[tick].playerCommands[playerId].complete;
     }
 
     public bool HaveServerCommandsForTick(int tick) {
-        return this.ContainsKey(tick) && this [tick].serverCommands.complete;
+        return commands.ContainsKey(tick) && commands[tick].serverCommands.complete;
     }
 
     void EnsureCommandsExistForPlayer(int tick, int playerId) {
         EnsureCommandsExistForTick(tick);
-        if (this [tick].playerCommands.ContainsKey(playerId) == false) {
-            this [tick].playerCommands[playerId] = new Commands();
+        if (commands[tick].playerCommands.ContainsKey(playerId) == false) {
+            commands[tick].playerCommands[playerId] = new Commands();
         }
     }
 
     void EnsureCommandsExistForTick(int tick) {
-        if (this.ContainsKey(tick) == false) {
-            this [tick] = new PlayerCommands();
+        if (commands.ContainsKey(tick) == false) {
+            commands[tick] = new PlayerCommands();
         }
     }
 }
