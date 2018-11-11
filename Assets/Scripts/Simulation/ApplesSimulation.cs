@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 
 public struct AllApplesState {
@@ -19,11 +20,14 @@ public struct AppleState {
 public struct AllApplesReducer {
     public static AllApplesReducer I;
 
+    const int spawnWidth = 100;
+    const int ticksPerSpawn = 10;
+
     public AllApplesState DoTick(GameState previousState, PlayerCommands commands) {
         var previousApples = previousState.apples;
-        var newApples = previousApples.all.ToList(); 
-        foreach(AppleState apple in previousApples.all) {
-            if(IsOnAppleOnHead(apple.position, previousState.snakes)) {
+        var newApples = previousApples.all.ToList();
+        foreach (AppleState apple in previousApples.all) {
+            if (IsOnAppleOnHead(apple.position, previousState.snakes)) {
                 newApples.Remove(apple);
             }
         }
@@ -35,14 +39,22 @@ public struct AllApplesReducer {
         );
     }
 
-    bool IsOnAppleOnHead(DG_Vector2 applePosition, AllSnakesState allSnakesState)
-    {
+    bool IsOnAppleOnHead(DG_Vector2 applePosition, AllSnakesState allSnakesState) {
         return allSnakesState.all.Any(x => x.headPosition == applePosition);
     }
 
     AppleState[] GetNewApples(int previousTick) {
+        if (previousTick % ticksPerSpawn != 0) return new AppleState[0];
+
+        var random = new System.Random(previousTick);
+
         return new AppleState[] {
-            new AppleState(new DG_Vector2(previousTick, previousTick))
+            new AppleState(
+                new DG_Vector2(
+                    random.Next(spawnWidth) - spawnWidth / 2,
+                    random.Next(spawnWidth) - spawnWidth / 2
+                )
+            )
         };
     }
 }

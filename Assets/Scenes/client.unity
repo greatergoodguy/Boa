@@ -142,7 +142,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   presenter: {fileID: 292539381}
-  commander: {fileID: 0}
 --- !u!4 &43877730
 Transform:
   m_ObjectHideFlags: 0
