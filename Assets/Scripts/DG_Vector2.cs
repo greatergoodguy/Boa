@@ -4,6 +4,8 @@ using System.Globalization;
 using Newtonsoft.Json;
 using UnityEngine;
 
+#pragma warning disable CS0660,CS0661
+
 [TypeConverter(typeof(DG_Vector2Converter))]
 public struct DG_Vector2 {
     [JsonIgnore]
