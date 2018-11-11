@@ -98,22 +98,29 @@ public class Scheduler : MonoBehaviour {
 
     void DoNormalTickStuff() {
         if (clock.Tock(Time.deltaTime)) {
-            if (Client.isClient) CompleteLocalPlayerCommands();
-
-            if (HaveAllOtherClientCommandsForNextTick() == false) {
-                Debug.Log("Waiting for client commands...");
-                return;
-            }
-
-            if (Server.isServer) {
-                DoServerCommandsDefault();
-            } else if (HaveServerCommandsForNextTick() == false) {
-                Debug.Log("Waiting for server commands...");
-                return;
-            }
-
+            if (HaveAllRequiredCommands() == false) return;
             DoTick();
         }
+    }
+
+    bool HaveAllRequiredCommands() {
+        if (GameOffline.isOffline) return true;
+
+        if (Client.isClient) CompleteLocalPlayerCommands();
+
+        if (HaveAllOtherClientCommandsForNextTick() == false) {
+            Debug.Log("Waiting for client commands...");
+            return false;
+        }
+
+        if (Server.isServer) {
+            DoServerCommandsDefault();
+        } else if (HaveServerCommandsForNextTick() == false) {
+            Debug.Log("Waiting for server commands...");
+            return false;
+        }
+        
+        return true;
     }
 
     void CompleteLocalPlayerCommands() {

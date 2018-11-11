@@ -5,12 +5,6 @@ using System.Linq;
 public class PlayerCommands {
     public ServerCommands serverCommands = new ServerCommands();
     public Dictionary<int, Commands> playerCommands = new Dictionary<int, Commands>();
-
-    // public PlayerCommands(int[] players) {
-    //     foreach (var playerId in players) {
-    //         this [playerId] = new Commands();
-    //     }
-    // }
 }
 
 public class Commands {

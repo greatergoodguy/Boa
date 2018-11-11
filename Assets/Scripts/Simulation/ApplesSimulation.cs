@@ -46,31 +46,3 @@ public struct AllApplesReducer {
         };
     }
 }
-
-// public struct AppleReducer {
-//     public static AppleReducer I;
-
-//     public AppleState DoTick(AppleState previousState, DirectionEnum changeDirectionCommand) {
-//         var previousSnake = previousState;
-
-//         // Change direction
-//         var newDirection = HandleDirectionChange(previousSnake.direction, changeDirectionCommand);
-//         // Move
-//         var newPosition = previousSnake.position + newDirection.GetMoveVector();
-
-//         return new AppleState(
-//             newPosition,
-//             newDirection,
-//             previousSnake.isAlive,
-//             previousSnake.ownerNetId
-//         );
-//     }
-
-//     Direction HandleDirectionChange(Direction currentDirection, DirectionEnum newDirection) {
-//         if (newDirection == DirectionEnum.None) {
-//             return currentDirection;
-//         } else {
-//             return new Direction(newDirection);
-//         }
-//     }
-// }
