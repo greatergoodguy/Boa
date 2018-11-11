@@ -49,9 +49,24 @@ public class Server : MonoBehaviour {
 		RegisterHandler(DG_MsgType.PlayerCommand, (NetworkMessage msg) => {
 			var playerCommandsMsg = msg.ReadMessage<PlayerCommandsMessage>();
 			Debug.Log("GOT MESSAGE PlayerCommand from player " + msg.conn.connectionId + ": " + JsonConvert.SerializeObject(playerCommandsMsg));
-			SendToAll(DG_MsgType.PlayerCommand, playerCommandsMsg);
-			Scheduler.I.OnPlayerCommand(playerCommandsMsg);
+			SendAndSchedulePlayerCommand(playerCommandsMsg);
 		});
+	}
+
+	public void OnPlayerDisconnect(int playerId) {
+		var tick = Scheduler.I.RemovePlayer(playerId);
+		
+		// TODO Might cause desync, maybe only send if we don't have that players commands for this tick
+		SendAndSchedulePlayerCommand(new PlayerCommandsMessage() {
+			commands = new Commands(){complete = true},
+			playerId = playerId,
+			tick = tick + 1
+		});
+	}
+
+	void SendAndSchedulePlayerCommand(PlayerCommandsMessage playerCommandsMsg) {
+		SendToAll(DG_MsgType.PlayerCommand, playerCommandsMsg);
+		Scheduler.I.OnPlayerCommand(playerCommandsMsg);
 	}
 
 	void CreateMatch() {

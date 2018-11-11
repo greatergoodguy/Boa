@@ -3,7 +3,7 @@ using System.Linq;
 
 public class CommandHistory {
     Dictionary<int, PlayerCommands> commands = new Dictionary<int, PlayerCommands>();
-    
+
     public Commands GetCommandsForPlayer(int tick, int playerId) {
         EnsureCommandsExistForPlayer(tick, playerId);
         return commands[tick].playerCommands[playerId];
@@ -22,6 +22,12 @@ public class CommandHistory {
     public void AddPlayer(int tick, int id) {
         EnsureCommandsExistForTick(tick);
         commands[tick].serverCommands.newPlayerIds = commands[tick].serverCommands.newPlayerIds.Concat(new int[] { id }).ToArray();
+        commands[tick].playerCommands[id] = new Commands();
+    }
+
+    public void RemovePlayer(int tick, int id) {
+        EnsureCommandsExistForTick(tick);
+        commands[tick].serverCommands.leftPlayerIds = commands[tick].serverCommands.leftPlayerIds.Concat(new int[] { id }).ToArray();
         commands[tick].playerCommands[id] = new Commands();
     }
 

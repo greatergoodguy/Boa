@@ -20,8 +20,8 @@ public struct AppleState {
 public struct AllApplesReducer {
     public static AllApplesReducer I;
 
-    const int spawnWidth = 100;
-    const int ticksPerSpawn = 10;
+    const int spawnWidth = 50;
+    const int ticksPerSpawn = 1;
 
     public AllApplesState DoTick(GameState previousState, PlayerCommands commands) {
         var previousApples = previousState.apples;

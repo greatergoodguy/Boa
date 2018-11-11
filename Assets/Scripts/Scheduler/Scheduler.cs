@@ -39,6 +39,14 @@ public class Scheduler : MonoBehaviour {
         };
     }
 
+    public int RemovePlayer(int playerId) {
+        Debug.Log($"RemovePlayer safeTick: {safeTick} | playerId: {playerId}");
+
+        commandHistory.RemovePlayer(safeTick + 1, playerId);
+
+        return safeTick;
+    }
+
     public void LoadGameStateAndCommands(PlayerJoin gameStateMessage) {
         Debug.Log("LoadGameStateAndCommands safeTick: " + safeTick);
         playerStartTick = gameStateMessage.playerStartTick;
@@ -78,6 +86,7 @@ public class Scheduler : MonoBehaviour {
     }
 
     public void OnPlayerCommand(PlayerCommandsMessage playerCommandsMessage) {
+        Debug.Log($"OnPlayerCommand safeTick: {safeTick} player: {playerCommandsMessage.playerId} tick: {playerCommandsMessage.tick}");
         if (!running) return;
         commandHistory.ReceiveOtherPlayerCommand(playerCommandsMessage);
     }

@@ -33,6 +33,7 @@ public struct AllSnakesReducer {
 
         return new AllSnakesState(
             previousSnakes.all
+            .Where(x => commands.serverCommands.leftPlayerIds.Contains(x.ownerId) == false)
             .Select(x => SnakeReducer.I.DoTick(previousState, x, commands.playerCommands[x.ownerId].changeDirection))
             .Concat(commands.serverCommands.newPlayerIds.Select(x => new SnakeState(new DG_Vector2(0, 0), new Direction(DirectionEnum.Up), true, x, new DG_Vector2[0])))
             .ToArray()

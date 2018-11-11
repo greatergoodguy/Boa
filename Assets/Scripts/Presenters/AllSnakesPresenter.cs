@@ -20,11 +20,24 @@ public class AllSnakesPresenter : MonoBehaviour, IPresenter<AllSnakesState> {
 	}
 
 	public void Present(AllSnakesState allSnakesState) {
+		// Add and Present
 		foreach (var snakeState in allSnakesState.all) {
 			if (snakePresenters.ContainsKey(snakeState.ownerId) == false) {
 				snakePresenters[snakeState.ownerId] = new GameObject().AddComponent<SnakePresenter>();
 			}
 			snakePresenters[snakeState.ownerId].Present(snakeState);
+		}
+
+		// Remove
+		var toRemove = new List<int>();
+		foreach (var kvp in snakePresenters) {
+			if (allSnakesState.all.Any(x => x.ownerId == kvp.Key) == false) {
+				kvp.Value.Clean();
+				toRemove.Add(kvp.Key);
+			}
+		}
+		foreach (var item in toRemove) {
+			snakePresenters.Remove(item);
 		}
 	}
 

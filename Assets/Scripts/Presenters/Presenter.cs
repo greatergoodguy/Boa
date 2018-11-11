@@ -3,14 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Presenter : MonoBehaviour, IPresenter<GameState> {
-	void Start() {
-
-	}
-
-	void Update() {
-
-	}
-
 	public void Present(GameState gameState) {
 		ServerPresenter.I.Present(gameState);
 
