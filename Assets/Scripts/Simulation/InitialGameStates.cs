@@ -37,22 +37,22 @@ public static class InitialGameStates {
         }
     }
 
-    static DG_Vector2[] GetStartingWalls(int size = 100) {
+    static DG_Vector2[] GetStartingWalls(int size = 50) {
         var walls = new List<DG_Vector2>();
 
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
                 if (x == 0) {
-                    walls.Add(new DG_Vector2(-1, y));
+                    walls.Add(new DG_Vector2((-size / 2) - 1, y - (size / 2)));
                 }
                 if (x == size - 1) {
-                    walls.Add(new DG_Vector2(size, y));
+                    walls.Add(new DG_Vector2(size / 2, y - (size / 2)));
                 }
                 if (y == 0) {
-                    walls.Add(new DG_Vector2(x, -1));
+                    walls.Add(new DG_Vector2(x - (size / 2), (-size / 2) - 1));
                 }
                 if (y == size - 1) {
-                    walls.Add(new DG_Vector2(x, size));
+                    walls.Add(new DG_Vector2(x - (size / 2), size / 2));
                 }
             }
         }
