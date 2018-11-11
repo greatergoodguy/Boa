@@ -12,10 +12,9 @@ public class Scheduler : MonoBehaviour {
 
     Simulation simulation;
     CommandHistory commandHistory = new CommandHistory();
+    Clock clock;
 
     // bool manualTickDebugMode;
-    float ticksPerSecond = 10;
-    float elapsedTime = 0;
     int safeTick = 0;
     int playerStartTick = int.MaxValue;
     GameState safeGameState;
@@ -32,10 +31,10 @@ public class Scheduler : MonoBehaviour {
 
         return new PlayerJoin() {
             commandHistoryJSON = JsonConvert.SerializeObject(commandHistory),
-            gameState = safeGameState,
-            safeTick = safeTick,
-            playerStartTick = playerStartTick,
-            playerId = playerId,
+                gameState = safeGameState,
+                safeTick = safeTick,
+                playerStartTick = playerStartTick,
+                playerId = playerId,
         };
     }
 
@@ -62,8 +61,9 @@ public class Scheduler : MonoBehaviour {
 
     void Go() {
         Debug.Log("Go safeTick: " + safeTick);
-        Present(safeGameState);
+        clock = new Clock();
         running = true;
+        Present(safeGameState);
     }
 
     public void Stop() {
@@ -138,9 +138,7 @@ public class Scheduler : MonoBehaviour {
     }
 
     void DoNormalTickStuff() {
-        elapsedTime += Time.deltaTime;
-
-        if (elapsedTime > 1 / ticksPerSecond) {
+        if (clock.Tock(Time.deltaTime)) {
             if (Client.isClient) CompleteLocalPlayerCommands();
 
             if (HaveAllOtherClientCommandsForNextTick() == false) {
@@ -155,7 +153,6 @@ public class Scheduler : MonoBehaviour {
                 return;
             }
 
-            elapsedTime -= 1 / ticksPerSecond;
             DoTick();
         }
     }
@@ -199,7 +196,7 @@ public class Scheduler : MonoBehaviour {
         safeGameState = simulation.DoTick(commandHistory[safeTick + 1]);
         safeTick++;
         Present(safeGameState);
-        elapsedTime = 0;
+        clock.Reset();
     }
 
     // void RollbackToTick(int tick) {
@@ -211,6 +208,6 @@ public class Scheduler : MonoBehaviour {
 
     void Present(GameState gameState) {
         presenter.Present(gameState);
-        ServerPresenter.elapsedTime = elapsedTime;
+        ServerPresenter.elapsedTime = clock.elapsedTime;
     }
 }
