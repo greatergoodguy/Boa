@@ -9,15 +9,14 @@ public class Scheduler : MonoBehaviour {
     public static Scheduler I;
 
     public Presenter presenter;
-    public Commander commander;
 
     Simulation simulation;
     CommandHistory commandHistory = new CommandHistory();
     Clock clock;
 
+    GameState safeGameState;
     int safeTick = 0;
     int playerStartTick = int.MaxValue;
-    GameState safeGameState;
     bool running = false;
 
     void Awake() {

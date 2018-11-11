@@ -75,9 +75,16 @@ public struct SnakeReducer {
         return applesState.all.Any(x => x.position == headPosition);
     }
 
-    Direction HandleDirectionChange(Direction currentDirection, DirectionEnum newDirection) {
+    Direction HandleDirectionChange(Direction previousDirection, DirectionEnum newDirection) {
         if (newDirection == DirectionEnum.None) {
-            return currentDirection;
+            return previousDirection;
+        } else if (
+            newDirection == DirectionEnum.Up && previousDirection.direction == DirectionEnum.Down ||
+            newDirection == DirectionEnum.Right && previousDirection.direction == DirectionEnum.Left ||
+            newDirection == DirectionEnum.Down && previousDirection.direction == DirectionEnum.Up ||
+            newDirection == DirectionEnum.Left && previousDirection.direction == DirectionEnum.Right
+        ) {
+            return previousDirection;
         } else {
             return new Direction(newDirection);
         }
