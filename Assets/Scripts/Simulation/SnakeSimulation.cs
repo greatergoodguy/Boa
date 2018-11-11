@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -31,12 +32,23 @@ public struct AllSnakesReducer {
     public AllSnakesState DoTick(GameState previousState, PlayerCommands commands) {
         var previousSnakes = previousState.snakes;
 
+        Func<SnakeState, bool> StillInGame = (snake) => commands.serverCommands.leftPlayerIds.Contains(snake.ownerId) == false;
+        Func<SnakeState, SnakeState> DoTick = (snake) => SnakeReducer.I.DoTick(previousState, snake, commands.playerCommands[snake.ownerId].changeDirection);
+        Func<SnakeState, bool> HeadIsNotOnAWall = (snake) => previousState.walls.Contains(snake.headPosition) == false;
+        Func<int, SnakeState> NewSnake = (int ownerId) => new SnakeState(new DG_Vector2(0, 0), new Direction(DirectionEnum.Up), true, ownerId, new DG_Vector2[0]);
+        IEnumerable<SnakeState> NewSnakes = commands.serverCommands.newPlayerIds.Select(NewSnake);
+
+        var newSnakes = previousSnakes.all
+            .Where(StillInGame)
+            .Select(DoTick)
+            .Where(HeadIsNotOnAWall)
+            .Concat(NewSnakes);
+
+        Func<SnakeState, bool> HeadIsNotOnOwnTail = (snake) => snake.tails.Any(x => x == snake.headPosition) == false;
+
         return new AllSnakesState(
-            previousSnakes.all
-            .Where(x => commands.serverCommands.leftPlayerIds.Contains(x.ownerId) == false)
-            .Select(x => SnakeReducer.I.DoTick(previousState, x, commands.playerCommands[x.ownerId].changeDirection))
-            .Where(x => previousState.walls.Contains(x.headPosition) == false)
-            .Concat(commands.serverCommands.newPlayerIds.Select(x => new SnakeState(new DG_Vector2(0, 0), new Direction(DirectionEnum.Up), true, x, new DG_Vector2[0])))
+            newSnakes
+            .Where(HeadIsNotOnOwnTail)
             .ToArray()
         );
     }
