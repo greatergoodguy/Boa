@@ -416,7 +416,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d49f302ef49762b4cafd751fb517fa3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  snakePrefab: {fileID: 1749454114923262, guid: 2c1f8b00a77da8e4abe37606df7fba9b,
+  snakeHeadPrefab: {fileID: 1749454114923262, guid: 2c1f8b00a77da8e4abe37606df7fba9b,
+    type: 2}
+  snakeTailPrefab: {fileID: 1749454114923262, guid: 27b943bdf64a22347960f314c33876e1,
     type: 2}
 --- !u!114 &292539386
 MonoBehaviour:

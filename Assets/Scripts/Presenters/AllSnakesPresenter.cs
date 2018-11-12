@@ -7,7 +7,8 @@ using UnityEngine;
 public class AllSnakesPresenter : MonoBehaviour, IPresenter<AllSnakesState> {
 	public static AllSnakesPresenter I;
 
-	public GameObject snakePrefab;
+	public GameObject snakeHeadPrefab;
+	public GameObject snakeTailPrefab;
 
 	public Dictionary<int, SnakePresenter> snakePresenters = new Dictionary<int, SnakePresenter>();
 
