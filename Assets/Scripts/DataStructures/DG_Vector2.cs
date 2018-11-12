@@ -10,6 +10,19 @@ using UnityEngine;
 public struct DG_Vector2 {
     [JsonIgnore]
     public static DG_Vector2 zero = new DG_Vector2(0, 0);
+    public static DG_Vector2 up = new DG_Vector2(0, 1);
+    public static DG_Vector2 right = new DG_Vector2(1, 0);
+    public static DG_Vector2 down = new DG_Vector2(0, -1);
+    public static DG_Vector2 left = new DG_Vector2(-1, 0);
+    public DG_Vector2 normalized {
+        get {
+            return FromUnityVector2(this.ToUnityVector2().normalized);
+        }
+    }
+
+    public static DG_Vector2 FromUnityVector2(Vector2 vector) {
+        return new DG_Vector2(vector);
+    }
 
     public readonly int x;
     public readonly int y;

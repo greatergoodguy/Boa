@@ -55,7 +55,7 @@ struct GameStateReducer {
             snakes: AllSnakesReducer.I.DoTick(previousState, commands),
             players: PlayersReducer.DoTick(previousState, commands),
             apples: AllApplesReducer.I.DoTick(previousState, commands),
-            walls: previousState.walls
+            walls: WallsReducer.DoTick(previousState)
         );
     }
 }
@@ -66,5 +66,19 @@ static class PlayersReducer {
         newState.UnionWith(commands.serverCommands.newPlayerIds);
         newState.ExceptWith(commands.serverCommands.leftPlayerIds);
         return newState.ToArray();
+    }
+}
+
+static class WallsReducer {
+    const int ticksPerShrink = 10;
+
+    public static DG_Vector2[] DoTick(GameState previousGameState) {
+        if (previousGameState.tick % ticksPerShrink != 0) return previousGameState.walls;
+
+        return previousGameState.walls.Select(x => TowardsCenter(x)).ToArray();
+    }
+
+    static DG_Vector2 TowardsCenter(DG_Vector2 vector2) {
+        return new DG_Vector2(vector2.x + (vector2.x < 0 ? 1 : -1), vector2.y + (vector2.y < 0 ? 1 : -1));
     }
 }
