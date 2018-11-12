@@ -51,11 +51,15 @@ public struct AllSnakesReducer {
             Func<SnakeState, bool> HeadIsNotOnOtherSnakesTail = (snake) => newSnakes
                 .Where(x => x.ownerId != snake.ownerId)
                 .Any(x => x.tails.Any(y => y == snake.headPosition)) == false;
+            Func<SnakeState, bool> HeadIsNotOnOtherSnakesHead = (snake) => newSnakes
+                .Where(x => x.ownerId != snake.ownerId)
+                .Any(x => x.headPosition == snake.headPosition) == false;
 
             return new AllSnakesState(
                 newSnakes
                 .Where(HeadIsNotOnOwnTail)
                 .Where(HeadIsNotOnOtherSnakesTail)
+                .Where(HeadIsNotOnOtherSnakesHead)
                 .ToArray()
             );
         } catch (System.Exception) {
