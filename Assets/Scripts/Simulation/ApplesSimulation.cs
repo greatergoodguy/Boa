@@ -25,19 +25,35 @@ public struct AllApplesReducer {
 
     public AllApplesState DoTick(GameState previousState, PlayerCommands commands) {
         var previousApples = previousState.apples;
+
         var newApples = previousApples.all.ToList();
+
         foreach (AppleState apple in previousApples.all) {
             if (IsOnAppleOnHead(apple.position, previousState.snakes)) {
                 newApples.Remove(apple);
             }
         }
 
-        Func<AppleState, bool> NotOnWall = (apple) => previousState.walls.Any(x => x == apple.position) == false;
+        int topWall = previousState.walls.Max(x => x.y);
+        int rightWall = previousState.walls.Max(x => x.x);
+        int bottomWall = previousState.walls.Min(x => x.y);
+        int leftWall = previousState.walls.Min(x => x.x);
+
+        Func<AppleState, bool> InsideWall = (apple) => {
+            if (
+                apple.position.y >= topWall ||
+                apple.position.y <= bottomWall ||
+                apple.position.x >= rightWall ||
+                apple.position.x <= leftWall
+            ) return false;
+
+            return true;
+        };
 
         return new AllApplesState(
             newApples
             .Concat(GetNewApples(previousState.tick))
-            .Where(NotOnWall)
+            .Where(InsideWall)
             .ToArray()
         );
     }
