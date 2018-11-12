@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
-  m_Name: Outrunfuture SDF
+  m_Name: ButtonTexts
   m_EditorClassIdentifier: 
   hashCode: 193027347
   material: {fileID: 21433116789775406}
@@ -1026,7 +1026,7 @@ Material:
     - _FaceUVSpeedX: 0.09
     - _FaceUVSpeedY: 0
     - _GlowInner: 0
-    - _GlowOffset: 0
+    - _GlowOffset: 0.139
     - _GlowOuter: 1
     - _GlowPower: 1
     - _GradientScale: 6
@@ -1036,12 +1036,12 @@ Material:
     - _OutlineSoftness: 0
     - _OutlineUVSpeedX: 0.64
     - _OutlineUVSpeedY: 0.58
-    - _OutlineWidth: 0.133
+    - _OutlineWidth: 0
     - _PerspectiveFilter: 0.875
     - _Reflectivity: 10
     - _ScaleRatioA: 0.8333333
-    - _ScaleRatioB: 0.6770833
-    - _ScaleRatioC: 0.6770833
+    - _ScaleRatioB: 0.5944542
+    - _ScaleRatioC: 0.30430713
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
@@ -1053,10 +1053,10 @@ Material:
     - _StencilWriteMask: 255
     - _TextureHeight: 512
     - _TextureWidth: 512
-    - _UnderlayDilate: 0.06
-    - _UnderlayOffsetX: 0.207
-    - _UnderlayOffsetY: -0.213
-    - _UnderlaySoftness: 0.043
+    - _UnderlayDilate: 1
+    - _UnderlayOffsetX: 1
+    - _UnderlayOffsetY: -1
+    - _UnderlaySoftness: 0.225
     - _VertexOffsetX: 0
     - _VertexOffsetY: 0
     - _WeightBold: 0.75
@@ -1065,13 +1065,13 @@ Material:
     - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
     - _EnvMatrixRotation: {r: 0, g: 0, b: 0, a: 0}
     - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
-    - _GlowColor: {r: 0.06256675, g: 0.13242857, b: 0.3584906, a: 1}
+    - _GlowColor: {r: 0, g: 0.8039216, b: 1, a: 0.03529412}
     - _MaskCoord: {r: 0, g: 0, b: 32767, a: 32767}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 0.8117647}
     - _ReflectFaceColor: {r: 0, g: 0, b: 0, a: 1}
     - _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
-    - _UnderlayColor: {r: 0.9338784, g: 1, b: 0, a: 0.9098039}
+    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.9098039}
 --- !u!28 &28936484261983024
 Texture2D:
   m_ObjectHideFlags: 0
