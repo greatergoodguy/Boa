@@ -32,9 +32,12 @@ public struct AllApplesReducer {
             }
         }
 
+        Func<AppleState, bool> NotOnWall = (apple) => previousState.walls.Any(x => x == apple.position) == false;
+
         return new AllApplesState(
             newApples
             .Concat(GetNewApples(previousState.tick))
+            .Where(NotOnWall)
             .ToArray()
         );
     }
