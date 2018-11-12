@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class CommandHistory {
-    Dictionary<int, PlayerCommands> commands = new Dictionary<int, PlayerCommands>();
+    public Dictionary<int, PlayerCommands> commands = new Dictionary<int, PlayerCommands>();
 
     public Commands GetCommandsForPlayer(int tick, int playerId) {
         EnsureCommandsExistForPlayer(tick, playerId);
@@ -14,9 +14,11 @@ public class CommandHistory {
         return commands[tick].serverCommands;
     }
 
-    public PlayerCommands GetCommands(int tick) {
+    public PlayerCommands TakeCommands(int tick) {
         EnsureCommandsExistForTick(tick);
-        return commands[tick];
+        var commandsForTick = commands[tick];
+        commands.Remove(tick);
+        return commandsForTick;
     }
 
     public void AddPlayer(int tick, int id) {

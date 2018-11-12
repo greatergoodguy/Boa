@@ -10,6 +10,7 @@ public class ServerPresenter : MonoBehaviour, IPresenter<GameState> {
 	public static ServerPresenter I;
 
 	public static float elapsedTime;
+	public static float playerId;
 
 	public Text serverDebugUIText;
 	public bool verbose;
@@ -27,6 +28,7 @@ public class ServerPresenter : MonoBehaviour, IPresenter<GameState> {
 
 	public void Present(GameState gameState) {
 		var debugText = "";
+		debugText += "playerId: " + playerId + "\n";
 		debugText += "tick: " + gameState.tick + "\n";
 		debugText += "elapsedTime: " + elapsedTime + "\n";
 		debugText += "players: " + JsonConvert.SerializeObject(gameState.players) + "\n";

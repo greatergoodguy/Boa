@@ -14,17 +14,16 @@ public class GameStateMachineManager : MonoBehaviour {
 	}
 
 	void Start() {
-		Toolbox.Log("GameStateManager Start");
+		Toolbox.Log("GameStateMachineManager Start");
 		state = GetComponent<GameMenu>();
 		state.Enter();
 	}
 
 	void Update() {
-
 		var nextState = state.GetNextState();
 
 		if (nextState) {
-			Toolbox.Log("SnakeServer switching state: " + nextState.GetType().Name);
+			Toolbox.Log("GameStateMachineManager switching state: " + nextState.GetType().Name);
 			state.Exit();
 			state = nextState;
 			state.Enter();

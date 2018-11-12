@@ -174,7 +174,7 @@ public class Scheduler : MonoBehaviour {
 
     void DoTick() {
         Toolbox.Log($"DoTick {safeTick} -> {safeTick + 1}");
-        safeGameState = simulation.DoTick(commandHistory.GetCommands(safeTick + 1));
+        safeGameState = simulation.DoTick(commandHistory.TakeCommands(safeTick + 1));
         safeTick++;
         Present(safeGameState);
         clock.Reset();
@@ -183,5 +183,6 @@ public class Scheduler : MonoBehaviour {
     void Present(GameState gameState) {
         presenter.Present(gameState);
         ServerPresenter.elapsedTime = clock.elapsedTime;
+        ServerPresenter.playerId = localPlayerId;
     }
 }
