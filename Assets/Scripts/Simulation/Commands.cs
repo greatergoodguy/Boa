@@ -1,10 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 public class PlayerCommands {
     public ServerCommands serverCommands = new ServerCommands();
     public Dictionary<int, Commands> playerCommands = new Dictionary<int, Commands>();
+
+    public string Serialize() {
+        return JsonConvert.SerializeObject(this);
+    }
 }
 
 public class Commands {

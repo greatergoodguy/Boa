@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
+using UnityEngine;
 
 public struct AllSnakesState {
     public readonly SnakeState[] all;
@@ -30,27 +32,36 @@ public struct AllSnakesReducer {
     public static AllSnakesReducer I;
 
     public AllSnakesState DoTick(GameState previousState, PlayerCommands commands) {
-        var previousSnakes = previousState.snakes;
+        try {
+            var previousSnakes = previousState.snakes;
 
-        Func<SnakeState, bool> StillInGame = (snake) => commands.serverCommands.leftPlayerIds.Contains(snake.ownerId) == false;
-        Func<SnakeState, SnakeState> DoTick = (snake) => SnakeReducer.I.DoTick(previousState, snake, commands.playerCommands[snake.ownerId].changeDirection);
-        Func<SnakeState, bool> HeadIsNotOnAWall = (snake) => previousState.walls.Contains(snake.headPosition) == false;
-        Func<int, SnakeState> NewSnake = (int ownerId) => new SnakeState(new DG_Vector2(0, 0), new Direction(DirectionEnum.Up), true, ownerId, new DG_Vector2[0]);
-        IEnumerable<SnakeState> NewSnakes = commands.serverCommands.newPlayerIds.Select(NewSnake);
+            Func<SnakeState, bool> StillInGame = (snake) => commands.serverCommands.leftPlayerIds.Contains(snake.ownerId) == false;
+            Func<SnakeState, SnakeState> DoTick = (snake) => SnakeReducer.I.DoTick(previousState, snake, commands.playerCommands[snake.ownerId].changeDirection);
+            Func<SnakeState, bool> HeadIsNotOnAWall = (snake) => previousState.walls.Contains(snake.headPosition) == false;
+            Func<int, SnakeState> NewSnake = (int ownerId) => new SnakeState(new DG_Vector2(0, 0), new Direction(DirectionEnum.Up), true, ownerId, new DG_Vector2[0]);
+            IEnumerable<SnakeState> NewSnakes = commands.serverCommands.newPlayerIds.Select(NewSnake);
 
-        var newSnakes = previousSnakes.all
-            .Where(StillInGame)
-            .Select(DoTick)
-            .Where(HeadIsNotOnAWall)
-            .Concat(NewSnakes);
+            var newSnakes = previousSnakes.all
+                .Where(StillInGame)
+                .Select(DoTick)
+                .Where(HeadIsNotOnAWall)
+                .Concat(NewSnakes);
 
-        Func<SnakeState, bool> HeadIsNotOnOwnTail = (snake) => snake.tails.Any(x => x == snake.headPosition) == false;
+            Func<SnakeState, bool> HeadIsNotOnOwnTail = (snake) => snake.tails.Any(x => x == snake.headPosition) == false;
+            Func<SnakeState, bool> HeadIsNotOnOtherSnakesTail = (snake) => newSnakes
+                .Where(x => x.ownerId != snake.ownerId)
+                .Any(x => x.tails.Any(y => y == snake.headPosition)) == false;
 
-        return new AllSnakesState(
-            newSnakes
-            .Where(HeadIsNotOnOwnTail)
-            .ToArray()
-        );
+            return new AllSnakesState(
+                newSnakes
+                .Where(HeadIsNotOnOwnTail)
+                .Where(HeadIsNotOnOtherSnakesTail)
+                .ToArray()
+            );
+        } catch (System.Exception) {
+            Debug.LogError($"Exception caught in AllSnakesReducer DoTick() | previousState: {previousState.Serialize()} | commands: {commands.Serialize()}");
+            throw;
+        }
     }
 }
 

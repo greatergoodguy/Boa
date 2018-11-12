@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 public class Simulation {
     public int tick { get; private set; }
@@ -38,6 +39,10 @@ public struct GameState {
         this.players = players;
         this.apples = apples;
         this.walls = walls;
+    }
+
+    public string Serialize() {
+        return JsonConvert.SerializeObject(this);
     }
 }
 
