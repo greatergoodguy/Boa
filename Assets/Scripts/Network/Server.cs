@@ -64,6 +64,10 @@ public class Server : MonoBehaviour {
 				playerId = playerId,
 				tick = tick + 1
 		});
+
+		playerCount--;
+
+		Debug.Assert(playerCount >= 0);
 	}
 
 	void SendAndSchedulePlayerCommand(PlayerCommandsMessage playerCommandsMsg) {
@@ -97,7 +101,6 @@ public class Server : MonoBehaviour {
 	}
 
 	void OnServerStart() {
-		scheduler.Go(InitialGameStates.ServerInitialGameState, -1);
 	}
 
 	public void SendServerCommandToClients(int tick, ServerCommands serverCommands) {

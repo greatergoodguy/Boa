@@ -70,7 +70,7 @@ static class PlayersReducer {
 }
 
 static class WallsReducer {
-    const int ticksPerShrink = 1;
+    const int ticksPerShrink = 10;
 
     public static DG_Vector2[] DoTick(GameState previousGameState) {
         if (previousGameState.tick % ticksPerShrink != 0) return previousGameState.walls;

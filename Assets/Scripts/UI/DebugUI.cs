@@ -14,6 +14,7 @@ public class DebugUI : MonoBehaviour {
 		var debugText = "";
 
 		debugText += "stateMachineState: " + GameStateMachineManager.I?.state.GetType() + ServerStateMachineManager.I?.state.GetType() + "\n";
+		debugText += "isPaused: " + Scheduler.I.clock?.paused + "\n";
 		if (Client.playerId > 0) debugText += "clientPlayerId: " + Client.playerId + "\n";
 
 		otherDebugText.text = debugText;

@@ -180,6 +180,9 @@ public class Scheduler : MonoBehaviour {
         clock.Reset();
     }
 
+    public void Pause() => clock.Pause();
+    public void Unpause() => clock.Unpause();
+
     void Present(GameState gameState) {
         presenter.Present(gameState);
     }

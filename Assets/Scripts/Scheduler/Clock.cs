@@ -1,9 +1,14 @@
+using System;
+
 public class Clock {
     public float elapsedTime { get; private set; }
+    public bool paused { get; private set; }
 
-    float ticksPerSecond = 10;
+    const float ticksPerSecond = 10;
 
     public bool Tock(float delta) {
+        if (paused) return false;
+
         elapsedTime += delta;
 
         return elapsedTime > 1 / ticksPerSecond;
@@ -11,5 +16,14 @@ public class Clock {
 
     public void Reset() {
         elapsedTime = 0;
+        paused = false;
+    }
+
+    internal void Pause() {
+        paused = true;
+    }
+
+    internal void Unpause() {
+        paused = false;
     }
 }

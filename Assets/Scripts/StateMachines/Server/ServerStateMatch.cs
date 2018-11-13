@@ -4,14 +4,18 @@ using UnityEngine;
 
 public class ServerStateMatch : GameStateMachine {
 	public override void Enter() {
-
+		Scheduler.I.Unpause();
 	}
 
 	public override void Exit() {
-
+		Scheduler.I.Stop();
 	}
 
 	public override GameStateMachine GetNextState() {
-		return null;
+		if (Server.playerCount == 0) {
+			return GetComponent<ServerStateEmpty>();
+		} else {
+			return null;
+		}
 	}
 }
