@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 using UnityEngine;
 
 public struct AllSnakesState {
@@ -62,7 +61,7 @@ public struct AllSnakesReducer {
                 .Where(HeadIsNotOnOtherSnakesHead)
                 .ToArray()
             );
-        } catch (System.Exception) {
+        } catch (Exception) {
             Debug.LogError($"Exception caught in AllSnakesReducer DoTick() | previousState: {previousState.Serialize()} | commands: {commands.Serialize()}");
             throw;
         }
