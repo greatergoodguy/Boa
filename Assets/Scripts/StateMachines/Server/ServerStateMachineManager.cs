@@ -1,11 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.Networking;
 
-public class GameStateMachineManager : MonoBehaviour {
-	public static GameStateMachineManager I;
+public class ServerStateMachineManager : MonoBehaviour {
+	public static ServerStateMachineManager I;
 
 	public GameStateMachine state { get; private set; }
 
@@ -14,8 +12,8 @@ public class GameStateMachineManager : MonoBehaviour {
 	}
 
 	void Start() {
-		Toolbox.Log("GameStateMachineManager Start");
-		state = GetComponent<GameMenu>();
+		Toolbox.Log("ServerStateMachineManager Start");
+		state = GetComponent<ServerStateEmpty>();
 		state.Enter();
 	}
 
@@ -23,7 +21,7 @@ public class GameStateMachineManager : MonoBehaviour {
 		var nextState = state.GetNextState();
 
 		if (nextState) {
-			Toolbox.Log("GameStateMachineManager switching state: " + nextState.GetType().Name);
+			Toolbox.Log("ServerStateMachineManager switching state: " + nextState.GetType().Name);
 			state.Exit();
 			state = nextState;
 			state.Enter();

@@ -12,7 +12,7 @@ public class Scheduler : MonoBehaviour {
 
     Simulation simulation;
     CommandHistory commandHistory = new CommandHistory();
-    Clock clock;
+    public Clock clock { get; private set; }
 
     GameState safeGameState;
     int safeTick = 0;
@@ -182,7 +182,5 @@ public class Scheduler : MonoBehaviour {
 
     void Present(GameState gameState) {
         presenter.Present(gameState);
-        ServerPresenter.elapsedTime = clock.elapsedTime;
-        ServerPresenter.playerId = localPlayerId;
     }
 }

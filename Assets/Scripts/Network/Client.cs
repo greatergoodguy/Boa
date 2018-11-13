@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 public class Client : MonoBehaviour {
 	public static Client I;
 	public static bool isClient;
-	static int playerId = -1;
+	public static int playerId { get; private set; }
 
 	public NetworkClient client { get; private set; }
 
@@ -69,7 +69,7 @@ public class Client : MonoBehaviour {
 	}
 
 	public void Disconnect() {
-		playerId = -1;
+		playerId = 0;
 		client.Disconnect();
 		client.Shutdown();
 		client = null;

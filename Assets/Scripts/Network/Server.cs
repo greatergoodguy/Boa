@@ -11,6 +11,7 @@ public class Server : MonoBehaviour {
 	public static bool isServer;
 	public static Server I;
 	public bool LAN;
+	public static int playerCount;
 
 	Scheduler scheduler;
 	DG_NetworkManager networkManager;
@@ -45,6 +46,7 @@ public class Server : MonoBehaviour {
 			var gameStateAndCommands = Scheduler.I.GetGameStateAndCommandsAndAddPlayer(msg.conn.connectionId);
 			Debug.Log("SENDING: " + JsonConvert.SerializeObject(gameStateAndCommands));
 			SendToClient(msg.conn.connectionId, DG_MsgType.PlayerJoin, gameStateAndCommands);
+			playerCount++;
 		});
 		RegisterHandler(DG_MsgType.PlayerCommand, (NetworkMessage msg) => {
 			var playerCommandsMsg = msg.ReadMessage<PlayerCommandsMessage>();
@@ -55,12 +57,12 @@ public class Server : MonoBehaviour {
 
 	public void OnPlayerDisconnect(int playerId) {
 		var tick = Scheduler.I.RemovePlayer(playerId);
-		
+
 		// TODO Might cause desync, maybe only send if we don't have that players commands for this tick
 		SendAndSchedulePlayerCommand(new PlayerCommandsMessage() {
-			commands = new Commands(){complete = true},
-			playerId = playerId,
-			tick = tick + 1
+			commands = new Commands() { complete = true },
+				playerId = playerId,
+				tick = tick + 1
 		});
 	}
 

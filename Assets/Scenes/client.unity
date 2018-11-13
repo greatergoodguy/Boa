@@ -1226,12 +1226,16 @@ Prefab:
       propertyPath: m_RootOrder
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 1971275444293524, guid: ce366a1e856e6ab428abe30e8cb624ba, type: 2}
+      propertyPath: m_Name
+      value: DebugUI
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce366a1e856e6ab428abe30e8cb624ba, type: 2}
   m_IsPrefabAsset: 0
 --- !u!114 &805718344 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 114420592318826416, guid: ce366a1e856e6ab428abe30e8cb624ba,
+  m_CorrespondingSourceObject: {fileID: 114012660729552390, guid: ce366a1e856e6ab428abe30e8cb624ba,
     type: 2}
   m_PrefabInternal: {fileID: 805718343}
   m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
