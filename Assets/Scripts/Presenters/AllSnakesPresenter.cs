@@ -34,6 +34,7 @@ public class AllSnakesPresenter : MonoBehaviour, IPresenter<AllSnakesState> {
 		foreach (var kvp in snakePresenters) {
 			if (allSnakesState.all.Any(x => x.ownerId == kvp.Key) == false) {
 				kvp.Value.Clean();
+				Destroy(kvp.Value.gameObject);
 				toRemove.Add(kvp.Key);
 			}
 		}
@@ -45,6 +46,7 @@ public class AllSnakesPresenter : MonoBehaviour, IPresenter<AllSnakesState> {
 	public void Clean() {
 		foreach (var snakePresenter in snakePresenters.Values) {
 			snakePresenter.Clean();
+			Destroy(snakePresenter.gameObject);
 		}
 		snakePresenters.Clear();
 	}
