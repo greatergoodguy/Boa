@@ -29,7 +29,15 @@ public class Server : MonoBehaviour {
 
 		RegisterHandlers();
 
-		if (LAN) {
+		var useLAN = false;
+
+#if UNITY_EDITOR
+		if (LAN) useLAN = true;
+#endif
+
+		if (Entry.isLAN) useLAN = true;
+
+		if (useLAN) {
 			StartLANServer();
 		} else {
 			CreateMatch();
@@ -100,8 +108,7 @@ public class Server : MonoBehaviour {
 		OnServerStart();
 	}
 
-	void OnServerStart() {
-	}
+	void OnServerStart() { }
 
 	public void SendServerCommandToClients(int tick, ServerCommands serverCommands) {
 		var serverCommandsMessage = new ServerCommandsMessage() {
