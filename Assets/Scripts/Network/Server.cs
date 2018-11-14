@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -10,16 +11,14 @@ using static UnityEngine.Networking.NetworkServer;
 public class Server : MonoBehaviour {
 	public static bool isServer;
 	public static Server I;
-	public bool LAN;
+	public bool useMatchmaker;
 	public static int playerCount;
 
-	Scheduler scheduler;
 	DG_NetworkManager networkManager;
 
 	void Awake() {
 		Debug.Log("Server Awake");
 		isServer = true;
-		scheduler = GetComponent<Scheduler>();
 		networkManager = GetComponent<DG_NetworkManager>();
 		I = this;
 	}
@@ -29,18 +28,14 @@ public class Server : MonoBehaviour {
 
 		RegisterHandlers();
 
-		var useLAN = false;
-
-#if UNITY_EDITOR
-		if (LAN) useLAN = true;
+#if !UNITY_EDITOR
+		useMatchmaker = Environment.GetCommandLineArgs().Any(x => x.ToLowerInvariant() == "matchmaker");
 #endif
 
-		if (Entry.isLAN) useLAN = true;
-
-		if (useLAN) {
-			StartLANServer();
-		} else {
+		if (useMatchmaker) {
 			CreateMatch();
+		} else {
+			StartLANServer();
 		}
 	}
 
