@@ -19,11 +19,7 @@ public class Clock {
         paused = false;
     }
 
-    internal void Pause() {
-        paused = true;
-    }
+    public void Pause() => paused = true;
 
-    internal void Unpause() {
-        paused = false;
-    }
+    public void Unpause() => paused = false;
 }

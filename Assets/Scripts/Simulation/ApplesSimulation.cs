@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 public struct AllApplesState {
     public readonly AppleState[] all;
+    public readonly DG_Vector2[] eatenApples;
 
-    public AllApplesState(AppleState[] apples) {
+    public AllApplesState(AppleState[] apples, DG_Vector2[] eatenApples) {
         this.all = apples;
+        this.eatenApples = eatenApples;
     }
 }
 
@@ -23,43 +26,13 @@ public struct AllApplesReducer {
     const int spawnWidth = 50;
     const int ticksPerSpawn = 1;
 
-    public AllApplesState DoTick(GameState previousState, PlayerCommands commands) {
-        var previousApples = previousState.apples;
-
-        var newApples = previousApples.all.ToList();
-
-        foreach (AppleState apple in previousApples.all) {
-            if (IsOnAppleOnHead(apple.position, previousState.snakes)) {
-                newApples.Remove(apple);
-            }
-        }
-
-        int topWall = previousState.walls.Max(x => x.y);
-        int rightWall = previousState.walls.Max(x => x.x);
-        int bottomWall = previousState.walls.Min(x => x.y);
-        int leftWall = previousState.walls.Min(x => x.x);
-
-        Func<AppleState, bool> InsideWall = (apple) => {
-            if (
-                apple.position.y >= topWall ||
-                apple.position.y <= bottomWall ||
-                apple.position.x >= rightWall ||
-                apple.position.x <= leftWall
-            ) return false;
-
-            return true;
-        };
-
+    public AllApplesState FirstPass(GameState previousState, PlayerCommands commands) {
         return new AllApplesState(
-            newApples
+            previousState.apples.all
             .Concat(GetNewApples(previousState.tick))
-            .Where(InsideWall)
-            .ToArray()
+            .ToArray(),
+            previousState.apples.eatenApples
         );
-    }
-
-    bool IsOnAppleOnHead(DG_Vector2 applePosition, AllSnakesState allSnakesState) {
-        return allSnakesState.all.Any(x => x.headPosition == applePosition);
     }
 
     AppleState[] GetNewApples(int previousTick) {
@@ -75,5 +48,42 @@ public struct AllApplesReducer {
                 )
             )
         };
+    }
+
+    public AllApplesState SecondPass(GameState firstPassResult, PlayerCommands commands) {
+        var secondPassApples = firstPassResult.apples.all.ToList();
+        var eatenApples = new List<DG_Vector2>();
+
+        foreach (AppleState apple in firstPassResult.apples.all) {
+            if (IsAppleOnSnakeHead(apple.position, firstPassResult.snakes)) {
+                secondPassApples.Remove(apple);
+                eatenApples.Add(apple.position);
+            }
+        }
+
+        int topWall = firstPassResult.walls.Max(x => x.y);
+        int rightWall = firstPassResult.walls.Max(x => x.x);
+        int bottomWall = firstPassResult.walls.Min(x => x.y);
+        int leftWall = firstPassResult.walls.Min(x => x.x);
+
+        Func<AppleState, bool> InsideWall = (apple) => {
+            if (
+                apple.position.y >= topWall ||
+                apple.position.y <= bottomWall ||
+                apple.position.x >= rightWall ||
+                apple.position.x <= leftWall
+            ) return false;
+
+            return true;
+        };
+
+        return new AllApplesState(
+            secondPassApples.Where(InsideWall).ToArray(),
+            eatenApples.ToArray()
+        );
+    }
+
+    bool IsAppleOnSnakeHead(DG_Vector2 applePosition, AllSnakesState allSnakesState) {
+        return allSnakesState.all.Any(x => x.headPosition == applePosition);
     }
 }

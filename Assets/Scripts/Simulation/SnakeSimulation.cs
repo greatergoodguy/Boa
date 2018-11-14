@@ -17,27 +17,38 @@ public struct SnakeState {
     public readonly bool isAlive;
     public readonly int ownerId;
     public readonly DG_Vector2[] tails;
+    public readonly bool ateAppleLastTick;
 
-    public SnakeState(DG_Vector2 position, Direction direction, bool isAlive, int ownerNetId, DG_Vector2[] tails) {
+    public SnakeState(int ownerNetId) {
+        this.headPosition = DG_Vector2.zero;
+        this.direction = new Direction(DirectionEnum.Up);
+        this.isAlive = true;
+        this.ownerId = ownerNetId;
+        this.tails = new DG_Vector2[0];
+        this.ateAppleLastTick = false;
+    }
+
+    public SnakeState(DG_Vector2 position, Direction direction, bool isAlive, int ownerNetId, DG_Vector2[] tails, bool ateAppleLastTick) {
         this.headPosition = position;
         this.direction = direction;
         this.isAlive = isAlive;
         this.ownerId = ownerNetId;
         this.tails = tails;
+        this.ateAppleLastTick = ateAppleLastTick;
     }
 }
 
 public struct AllSnakesReducer {
     public static AllSnakesReducer I;
 
-    public AllSnakesState DoTick(GameState previousState, PlayerCommands commands) {
+    public AllSnakesState FirstPass(GameState previousState, PlayerCommands commands) {
         try {
             var previousSnakes = previousState.snakes;
 
             Func<SnakeState, bool> StillInGame = (snake) => commands.serverCommands.leftPlayerIds.Contains(snake.ownerId) == false;
             Func<SnakeState, SnakeState> DoTick = (snake) => SnakeReducer.I.DoTick(previousState, snake, commands.playerCommands[snake.ownerId].changeDirection);
             Func<SnakeState, bool> HeadIsNotOnAWall = (snake) => previousState.walls.Contains(snake.headPosition) == false;
-            Func<int, SnakeState> NewSnake = (int ownerId) => new SnakeState(new DG_Vector2(0, 0), new Direction(DirectionEnum.Up), true, ownerId, new DG_Vector2[0]);
+            Func<int, SnakeState> NewSnake = (int ownerId) => new SnakeState(ownerId);
             IEnumerable<SnakeState> NewSnakes = commands.serverCommands.newPlayerIds.Select(NewSnake);
 
             var newSnakes = previousSnakes.all
@@ -66,6 +77,10 @@ public struct AllSnakesReducer {
             throw;
         }
     }
+
+    public AllSnakesState SecondPass(GameState firstPassResult, PlayerCommands commands) {
+        return firstPassResult.snakes;
+    }
 }
 
 public struct SnakeReducer {
@@ -75,8 +90,8 @@ public struct SnakeReducer {
         var previousSnake = previousSnakeState;
 
         var newTails = previousSnake.tails.ToArray();
-
-        if (IsHeadOnApple(previousSnake.headPosition, previousGameState.apples)) {
+        
+        if (previousSnakeState.ateAppleLastTick) {
             newTails = newTails.Append(new DG_Vector2()).ToArray();
         }
 
@@ -95,7 +110,8 @@ public struct SnakeReducer {
             newDirection,
             previousSnake.isAlive,
             previousSnake.ownerId,
-            newTails
+            newTails,
+            IsHeadOnApple(newHeadPosition, previousGameState.apples)
         );
     }
 

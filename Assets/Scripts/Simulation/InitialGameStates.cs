@@ -9,7 +9,7 @@ public static class InitialGameStates {
                     new SnakeState[0]
                 ),
                 players : new int[0],
-                apples : new AllApplesState(new AppleState[0]),
+                apples : new AllApplesState(new AppleState[0], new DG_Vector2[0]),
                 walls : GetStartingWalls()
             );
         }
@@ -22,16 +22,12 @@ public static class InitialGameStates {
                 snakes: new AllSnakesState(
                     new SnakeState[] {
                         new SnakeState(
-                            position: DG_Vector2.zero,
-                            direction: new Direction(DirectionEnum.Up),
-                            isAlive: true,
-                            ownerNetId: 0,
-                            tails: new DG_Vector2[0]
+                            ownerNetId: 0
                         )
                     }
                 ),
                 players : new int[] { 0 },
-                apples : new AllApplesState(new AppleState[0]),
+                apples : new AllApplesState(new AppleState[0], new DG_Vector2[0]),
                 walls : GetStartingWalls()
             );
         }

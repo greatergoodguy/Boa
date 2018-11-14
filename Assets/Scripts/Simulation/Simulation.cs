@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -50,32 +51,50 @@ struct GameStateReducer {
     public static GameStateReducer I;
 
     public GameState DoTick(int tick, GameState previousState, PlayerCommands commands) {
-        return new GameState(
+        var firstPassResult = new GameState(
             tick: tick,
-            snakes: AllSnakesReducer.I.DoTick(previousState, commands),
-            players: PlayersReducer.DoTick(previousState, commands),
-            apples: AllApplesReducer.I.DoTick(previousState, commands),
-            walls: WallsReducer.DoTick(previousState)
+            snakes: AllSnakesReducer.I.FirstPass(previousState, commands),
+            players : PlayersReducer.FirstPass(previousState, commands),
+            apples : AllApplesReducer.I.FirstPass(previousState, commands),
+            walls : WallsReducer.FirstPass(previousState)
         );
+
+        var secondPassResult = new GameState(
+            tick: tick,
+            snakes: AllSnakesReducer.I.SecondPass(firstPassResult, commands),
+            players : PlayersReducer.SecondPass(firstPassResult, commands),
+            apples : AllApplesReducer.I.SecondPass(firstPassResult, commands),
+            walls : WallsReducer.SecondPass(firstPassResult)
+        );
+
+        return secondPassResult;
     }
 }
 
 static class PlayersReducer {
-    public static int[] DoTick(GameState previousState, PlayerCommands commands) {
+    public static int[] FirstPass(GameState previousState, PlayerCommands commands) {
         var newState = new HashSet<int>(previousState.players);
         newState.UnionWith(commands.serverCommands.newPlayerIds);
         newState.ExceptWith(commands.serverCommands.leftPlayerIds);
         return newState.ToArray();
+    }
+
+    public static int[] SecondPass(GameState firstPassResult, PlayerCommands commands) {
+        return firstPassResult.players;
     }
 }
 
 static class WallsReducer {
     const int ticksPerShrink = 10;
 
-    public static DG_Vector2[] DoTick(GameState previousGameState) {
+    public static DG_Vector2[] FirstPass(GameState previousGameState) {
         if (previousGameState.tick % ticksPerShrink != 0) return previousGameState.walls;
 
         return previousGameState.walls.Select(x => TowardsCenter(x)).ToArray();
+    }
+
+    public static DG_Vector2[] SecondPass(GameState firstPassResult) {
+        return firstPassResult.walls;
     }
 
     static DG_Vector2 TowardsCenter(DG_Vector2 vector2) {

@@ -8,6 +8,7 @@ public class AllApplesPresenter : MonoBehaviour, IPresenter<AllApplesState> {
 	public static AllApplesPresenter I;
 
 	public GameObject applePrefab;
+	public GameObject appleExplosionPrefab;
 
 	List<GameObject> apples = new List<GameObject>();
 
@@ -29,7 +30,15 @@ public class AllApplesPresenter : MonoBehaviour, IPresenter<AllApplesState> {
 			apples.RemoveAt(apples.Count - 1);
 		}
 
+		foreach (var eatenApple in allApplesState.eatenApples) {
+			OnAppleEaten(eatenApple);
+		}
+
 		allApplesState.all.ZipDo(apples, (state, apple) => apple.transform.position = state.position.ToUnityVector2());
+	}
+
+	void OnAppleEaten(DG_Vector2 position) {
+		Instantiate(appleExplosionPrefab, position.ToUnityVector2(), Quaternion.identity);
 	}
 
 	public void Clean() {
