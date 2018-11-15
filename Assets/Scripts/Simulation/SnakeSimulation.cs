@@ -22,9 +22,9 @@ public struct AllSnakesState {
         );
     }
 
-    public AllSnakesState RemoveIfOnAWall(DG_Vector2[] walls) {
+    public AllSnakesState RemoveIfOutsideWalls(DG_Vector2[] walls) {
         return new AllSnakesState(
-            this.all.Where(snake => walls.Contains(snake.headPosition) == false).ToArray()
+            this.all.Where(snake => WallsReducer.IsPositionInsideWalls(snake.headPosition, walls)).ToArray()
         );
     }
 
@@ -92,12 +92,12 @@ public struct SnakeState {
         this.ateAppleLastTick = ateAppleLastTick.HasValue ? ateAppleLastTick.Value : snakeToCopy.ateAppleLastTick;
     }
 
-    public SnakeState(DG_Vector2 headPosition, Direction direction, bool isAlive, int ownerNetId, DG_Vector2[] tails, bool ateAppleLastTick) {
+    public SnakeState(DG_Vector2 headPosition, Direction direction, int ownerNetId, DG_Vector2[] tails = null, bool ateAppleLastTick = false, bool isAlive = true) {
         this.headPosition = headPosition;
         this.direction = direction;
         this.isAlive = isAlive;
         this.ownerId = ownerNetId;
-        this.tails = tails;
+        this.tails = tails == null ? new DG_Vector2[0] : tails;
         this.ateAppleLastTick = ateAppleLastTick;
     }
 
@@ -108,7 +108,13 @@ public struct SnakeState {
         );
     }
 
-    public SnakeState ChangeDirection(DirectionEnum changeDirectionCommand) {
+    public SnakeState ChangeDirection(int tick, PlayerCommands commands) {
+        DirectionEnum changeDirectionCommand;
+        if (this.ownerId >= 0) {
+            changeDirectionCommand = commands.playerCommands[this.ownerId].changeDirection;
+        } else {
+            changeDirectionCommand = Direction.Random((this.ownerId * 100) + tick);
+        }
         return new SnakeState(
             this,
             direction : HandleDirectionChange(this.direction, changeDirectionCommand)

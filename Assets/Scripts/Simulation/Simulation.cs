@@ -58,19 +58,19 @@ static class GameStateReducer {
                 .ForEachSnake((snake) => {
                     return snake
                         .AddTails()
-                        .ChangeDirection(commands.playerCommands[snake.ownerId].changeDirection)
+                        .ChangeDirection(tick, commands)
                         .MoveTails()
                         .MoveHead()
                         .EatAppleCheck(previousState.apples);
                 })
-                .RemoveIfOnAWall(newWallsState)
+                .RemoveIfOutsideWalls(newWallsState)
                 .AddSnakesForNewPlayers(commands)
                 .RemoveIfOnOwnTail()
                 .RemoveIfOnOtherSnakesTail()
                 .RemoveIfHeadIsOnOtherSnakesHead();
 
             var newAllApplesState = previousState.apples
-                .SpawnApples(tick)
+                .SpawnApples(tick, newAllSnakesState.all.Select(x => x.headPosition))
                 .RemoveEatenApples(newAllSnakesState)
                 .RemoveWhereOnOrOutsideWalls(newWallsState);
 
@@ -108,5 +108,23 @@ static class WallsReducer {
 
     static DG_Vector2 TowardsCenter(DG_Vector2 vector2) {
         return new DG_Vector2(vector2.x + (vector2.x < 0 ? 1 : -1), vector2.y + (vector2.y < 0 ? 1 : -1));
+    }
+
+    public static bool IsPositionInsideWalls(DG_Vector2 position, DG_Vector2[] walls) {
+        int topWall = walls.Max(x => x.y);
+        int rightWall = walls.Max(x => x.x);
+        int bottomWall = walls.Min(x => x.y);
+        int leftWall = walls.Min(x => x.x);
+
+        if (
+            position.y >= topWall ||
+            position.y <= bottomWall ||
+            position.x >= rightWall ||
+            position.x <= leftWall
+        ) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

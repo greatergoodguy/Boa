@@ -14,9 +14,13 @@ public struct AllApplesState {
         this.eatenApples = eatenApples;
     }
 
-    public AllApplesState SpawnApples(int tick) {
+    public AllApplesState SpawnApples(int tick, IEnumerable<DG_Vector2> snakeHeads) {
+        Func<AppleState, bool> NotOnSnakeHead = (apple) => snakeHeads.Contains(apple.position) == false;
+
         return new AllApplesState(
-            this.all.Concat(GetNewApples(tick)).ToArray(),
+            this.all.Concat(
+                GetNewApples(tick).Where(NotOnSnakeHead)
+            ).ToArray(),
             this.eatenApples
         );
     }
@@ -38,21 +42,7 @@ public struct AllApplesState {
     }
 
     public AllApplesState RemoveWhereOnOrOutsideWalls(DG_Vector2[] walls) {
-        int topWall = walls.Max(x => x.y);
-        int rightWall = walls.Max(x => x.x);
-        int bottomWall = walls.Min(x => x.y);
-        int leftWall = walls.Min(x => x.x);
-
-        Func<AppleState, bool> InsideWall = (apple) => {
-            if (
-                apple.position.y >= topWall ||
-                apple.position.y <= bottomWall ||
-                apple.position.x >= rightWall ||
-                apple.position.x <= leftWall
-            ) return false;
-
-            return true;
-        };
+        Func<AppleState, bool> InsideWall = (apple) => WallsReducer.IsPositionInsideWalls(apple.position, walls);
 
         return new AllApplesState(
             this.all.Where(InsideWall).ToArray(),

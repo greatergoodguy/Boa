@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum DirectionEnum {
-    None,
-    Up,
-    Right,
-    Down,
-    Left,
+    None = 0,
+    Up = 1,
+    Right = 2,
+    Down = 3,
+    Left = 4,
 }
 
 public struct Direction {
@@ -21,6 +21,10 @@ public struct Direction {
     public Quaternion GetHeadRotation() => FOO.directions[direction].GetHeadRotation();
 
     public DG_Vector2 GetMoveVector() => FOO.directions[direction].GetMoveVector();
+
+    public static DirectionEnum Random(int seed) {
+        return (DirectionEnum)new System.Random(seed).Next(0, 4);
+    }
 }
 
 static class FOO {

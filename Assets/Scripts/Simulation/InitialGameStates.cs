@@ -21,9 +21,16 @@ public static class InitialGameStates {
                 tick: 0,
                 snakes: new AllSnakesState(
                     new SnakeState[] {
-                        new SnakeState(
-                            ownerNetId: 0
-                        )
+                        new SnakeState(ownerNetId: 0),
+                        new SnakeState(ownerNetId: -1, headPosition: new DG_Vector2(10, -3), direction: new Direction(DirectionEnum.Left)),
+                        new SnakeState(ownerNetId: -2, headPosition: new DG_Vector2(10, -4), direction: new Direction(DirectionEnum.Left)),
+                        new SnakeState(ownerNetId: -3, headPosition: new DG_Vector2(10, -5), direction: new Direction(DirectionEnum.Left)),
+                        new SnakeState(ownerNetId: -4, headPosition: new DG_Vector2(10, -6), direction: new Direction(DirectionEnum.Left)),
+                        new SnakeState(ownerNetId: -5, headPosition: new DG_Vector2(10, -7), direction: new Direction(DirectionEnum.Left)),
+                        new SnakeState(ownerNetId: -6, headPosition: new DG_Vector2(10, -8), direction: new Direction(DirectionEnum.Left)),
+                        new SnakeState(ownerNetId: -7, headPosition: new DG_Vector2(10, -9), direction: new Direction(DirectionEnum.Left)),
+                        new SnakeState(ownerNetId: -8, headPosition: new DG_Vector2(10, -10), direction: new Direction(DirectionEnum.Left)),
+                        new SnakeState(ownerNetId: -9, headPosition: new DG_Vector2(10, -11), direction: new Direction(DirectionEnum.Left)),
                     }
                 ),
                 players : new int[] { 0 },
