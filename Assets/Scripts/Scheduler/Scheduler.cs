@@ -19,6 +19,7 @@ public class Scheduler : MonoBehaviour {
     int playerStartTick = int.MaxValue;
     bool running = false;
     int localPlayerId;
+    int logTick;
 
     void Awake() {
         Debug.Log("Awake safeTick: " + safeTick);
@@ -83,12 +84,13 @@ public class Scheduler : MonoBehaviour {
     }
 
     public void OnServerCommand(ServerCommandsMessage serverCommandsMessage) {
+        // Debug.Log($"OnServerCommand safeTick: {safeTick} tick: {serverCommandsMessage.tick}");
         if (!running) return;
         commandHistory.ReceiveServerCommand(serverCommandsMessage);
     }
 
     public void OnPlayerCommand(PlayerCommandsMessage playerCommandsMessage) {
-        Debug.Log($"OnPlayerCommand safeTick: {safeTick} player: {playerCommandsMessage.playerId} tick: {playerCommandsMessage.tick}");
+        // Debug.Log($"OnPlayerCommand safeTick: {safeTick} player: {playerCommandsMessage.playerId} tick: {playerCommandsMessage.tick}");
         if (!running) return;
         commandHistory.ReceiveOtherPlayerCommand(playerCommandsMessage);
     }
@@ -129,14 +131,20 @@ public class Scheduler : MonoBehaviour {
         if (Client.isClient) CompleteLocalPlayerCommands();
 
         if (HaveAllOtherClientCommandsForNextTick() == false) {
-            Debug.Log("Waiting for client commands...");
+            if (logTick < simulation.tick) {
+                Debug.Log("Waiting for client commands...");
+                logTick = simulation.tick;
+            }
             return false;
         }
 
         if (Server.isServer) {
             DoServerCommandsDefault();
         } else if (HaveServerCommandsForNextTick() == false) {
+            if (logTick < simulation.tick) {
             Debug.Log("Waiting for server commands...");
+                logTick = simulation.tick;
+            }
             return false;
         }
 
@@ -173,7 +181,7 @@ public class Scheduler : MonoBehaviour {
     }
 
     void DoTick() {
-        Toolbox.Log($"DoTick {safeTick} -> {safeTick + 1}");
+        // Toolbox.Log($"DoTick {safeTick} -> {safeTick + 1}");
         safeGameState = simulation.DoTick(commandHistory.TakeCommands(safeTick + 1));
         safeTick++;
         Present(safeGameState);

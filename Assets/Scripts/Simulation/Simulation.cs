@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using UnityEngine;
 
 public class Simulation {
     public int tick { get; private set; }
@@ -16,7 +17,7 @@ public class Simulation {
     public GameState DoTick(PlayerCommands commands) {
         // Toolbox.Log($"Simulation DoTick {tick} -> {tick + 1}");
         tick++;
-        previousGameStates[tick] = (GameState) GameStateReducer.I.DoTick(tick, previousGameStates[tick - 1], commands);
+        previousGameStates[tick] = (GameState) GameStateReducer.DoTick(tick, previousGameStates[tick - 1], commands);
         return previousGameStates[tick];
     }
 
@@ -47,27 +48,43 @@ public struct GameState {
     }
 }
 
-struct GameStateReducer {
-    public static GameStateReducer I;
+static class GameStateReducer {
+    public static GameState DoTick(int tick, GameState previousState, PlayerCommands commands) {
+        try {
+            var newWallsState = WallsReducer.FirstPass(previousState);
 
-    public GameState DoTick(int tick, GameState previousState, PlayerCommands commands) {
-        var firstPassResult = new GameState(
-            tick: tick,
-            snakes: AllSnakesReducer.I.FirstPass(previousState, commands),
-            players : PlayersReducer.FirstPass(previousState, commands),
-            apples : AllApplesReducer.I.FirstPass(previousState, commands),
-            walls : WallsReducer.FirstPass(previousState)
-        );
+            var newAllSnakesState = previousState.snakes
+                .RemoveIfOwnerLeftTheGame(commands)
+                .ForEachSnake((snake) => {
+                    return snake
+                        .AddTails()
+                        .ChangeDirection(commands.playerCommands[snake.ownerId].changeDirection)
+                        .MoveTails()
+                        .MoveHead()
+                        .EatAppleCheck(previousState.apples);
+                })
+                .RemoveIfOnAWall(previousState)
+                .AddSnakesForNewPlayers(commands)
+                .RemoveIfOnOwnTail()
+                .RemoveIfOnOtherSnakesTail()
+                .RemoveIfHeadIsOnOtherSnakesHead();
 
-        var secondPassResult = new GameState(
-            tick: tick,
-            snakes: AllSnakesReducer.I.SecondPass(firstPassResult, commands),
-            players : PlayersReducer.SecondPass(firstPassResult, commands),
-            apples : AllApplesReducer.I.SecondPass(firstPassResult, commands),
-            walls : WallsReducer.SecondPass(firstPassResult)
-        );
+            var newAllApplesState = previousState.apples
+                .SpawnApples(tick)
+                .EatApples(newAllSnakesState)
+                .RemoveWhereOnOrOutsideWalls(newWallsState);
 
-        return secondPassResult;
+            return new GameState(
+                tick: tick,
+                snakes: newAllSnakesState,
+                players: PlayersReducer.FirstPass(previousState, commands),
+                apples : newAllApplesState,
+                walls : newWallsState
+            );
+        } catch (Exception) {
+            Debug.LogError($"tick: {tick} | previousState: {previousState.Serialize()} | commands: {commands.Serialize()}");
+            throw;
+        }
     }
 }
 
@@ -78,10 +95,6 @@ static class PlayersReducer {
         newState.ExceptWith(commands.serverCommands.leftPlayerIds);
         return newState.ToArray();
     }
-
-    public static int[] SecondPass(GameState firstPassResult, PlayerCommands commands) {
-        return firstPassResult.players;
-    }
 }
 
 static class WallsReducer {
@@ -91,10 +104,6 @@ static class WallsReducer {
         if (previousGameState.tick % ticksPerShrink != 0) return previousGameState.walls;
 
         return previousGameState.walls.Select(x => TowardsCenter(x)).ToArray();
-    }
-
-    public static DG_Vector2[] SecondPass(GameState firstPassResult) {
-        return firstPassResult.walls;
     }
 
     static DG_Vector2 TowardsCenter(DG_Vector2 vector2) {
