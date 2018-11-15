@@ -51,7 +51,7 @@ public struct GameState {
 static class GameStateReducer {
     public static GameState DoTick(int tick, GameState previousState, PlayerCommands commands) {
         try {
-            var newWallsState = WallsReducer.FirstPass(previousState);
+            var newWallsState = WallsReducer.MoveWalls(previousState);
 
             var newAllSnakesState = previousState.snakes
                 .RemoveIfOwnerLeftTheGame(commands)
@@ -63,7 +63,7 @@ static class GameStateReducer {
                         .MoveHead()
                         .EatAppleCheck(previousState.apples);
                 })
-                .RemoveIfOnAWall(previousState)
+                .RemoveIfOnAWall(newWallsState)
                 .AddSnakesForNewPlayers(commands)
                 .RemoveIfOnOwnTail()
                 .RemoveIfOnOtherSnakesTail()
@@ -71,15 +71,15 @@ static class GameStateReducer {
 
             var newAllApplesState = previousState.apples
                 .SpawnApples(tick)
-                .EatApples(newAllSnakesState)
+                .RemoveEatenApples(newAllSnakesState)
                 .RemoveWhereOnOrOutsideWalls(newWallsState);
 
             return new GameState(
                 tick: tick,
                 snakes: newAllSnakesState,
                 players: PlayersReducer.FirstPass(previousState, commands),
-                apples : newAllApplesState,
-                walls : newWallsState
+                apples: newAllApplesState,
+                walls: newWallsState
             );
         } catch (Exception) {
             Debug.LogError($"tick: {tick} | previousState: {previousState.Serialize()} | commands: {commands.Serialize()}");
@@ -100,7 +100,7 @@ static class PlayersReducer {
 static class WallsReducer {
     const int ticksPerShrink = 10;
 
-    public static DG_Vector2[] FirstPass(GameState previousGameState) {
+    public static DG_Vector2[] MoveWalls(GameState previousGameState) {
         if (previousGameState.tick % ticksPerShrink != 0) return previousGameState.walls;
 
         return previousGameState.walls.Select(x => TowardsCenter(x)).ToArray();

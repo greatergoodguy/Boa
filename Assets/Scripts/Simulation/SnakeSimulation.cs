@@ -22,9 +22,9 @@ public struct AllSnakesState {
         );
     }
 
-    public AllSnakesState RemoveIfOnAWall(GameState gameState) {
+    public AllSnakesState RemoveIfOnAWall(DG_Vector2[] walls) {
         return new AllSnakesState(
-            this.all.Where(snake => gameState.walls.Contains(snake.headPosition) == false).ToArray()
+            this.all.Where(snake => walls.Contains(snake.headPosition) == false).ToArray()
         );
     }
 

@@ -21,7 +21,7 @@ public struct AllApplesState {
         );
     }
 
-    public AllApplesState EatApples(AllSnakesState allSnakesState) {
+    public AllApplesState RemoveEatenApples(AllSnakesState allSnakesState) {
         var secondPassApples = this.all.ToList();
         var eatenApples = new List<DG_Vector2>();
 
