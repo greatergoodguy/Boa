@@ -94,6 +94,11 @@ public class Server : MonoBehaviour {
 	}
 
 	void StartLANServer() {
+
+#if !UNITY_EDITOR
+		networkManager.useWebSockets = true;
+#else
+
 		networkManager.StartServer();
 		OnServerStart();
 	}
