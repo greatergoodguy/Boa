@@ -14,6 +14,10 @@ public class Client : MonoBehaviour {
 	void Awake() {
 		I = this;
 		isClient = true;
+
+#if UNITY_WEBGL
+		networkManager.useWebSockets = true;
+#else
 	}
 
 	void Start() { }
