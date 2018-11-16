@@ -12,26 +12,27 @@ public enum DirectionEnum {
 }
 
 public struct Direction {
+    static readonly Dictionary<DirectionEnum, IDirection> directions = new Dictionary<DirectionEnum, IDirection>() {
+        { DirectionEnum.Up, new Up() },
+        { DirectionEnum.Right, new Right() },
+        { DirectionEnum.Down, new Down() },
+        { DirectionEnum.Left, new Left() }
+    };
+
     public readonly DirectionEnum direction;
 
     public Direction(DirectionEnum direction) {
         this.direction = direction;
     }
 
-    public Quaternion GetHeadRotation() => FOO.directions[direction].GetHeadRotation();
+    public Quaternion GetHeadRotation() => Direction.directions[direction].GetHeadRotation();
 
-    public DG_Vector2 GetMoveVector() => FOO.directions[direction].GetMoveVector();
+    public DG_Vector2 GetMoveVector() => Direction.directions[direction].GetMoveVector();
 
     public static DirectionEnum Random(int seed) {
         return (DirectionEnum)new System.Random(seed).Next(0, 4);
     }
 }
-
-static class FOO {
-    public static readonly Directions directions = new Directions() { { DirectionEnum.Up, new Up() }, { DirectionEnum.Right, new Right() }, { DirectionEnum.Down, new Down() }, { DirectionEnum.Left, new Left() } };
-}
-
-class Directions : Dictionary<DirectionEnum, IDirection> { }
 
 interface IDirection {
     DG_Vector2 GetMoveVector();

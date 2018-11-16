@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class DebugUI : MonoBehaviour {
@@ -15,6 +16,7 @@ public class DebugUI : MonoBehaviour {
 
 		debugText += "stateMachineState: " + GameStateMachineManager.I?.state.GetType() + ServerStateMachineManager.I?.state.GetType() + "\n";
 		debugText += "isPaused: " + Scheduler.I.clock?.paused + "\n";
+		debugText += "playerCount: " + Server.playerCount + "\n";
 		if (Client.playerId > 0) debugText += "clientPlayerId: " + Client.playerId + "\n";
 
 		otherDebugText.text = debugText;
