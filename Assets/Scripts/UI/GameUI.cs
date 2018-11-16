@@ -7,6 +7,7 @@ public class GameUI : MonoBehaviour {
 
 	public GameObject mainMenu;
 	public GameObject inGameMenu;
+	public GameObject waitingForPlayers;
 
 	void Awake() {
 		I = this;
@@ -22,5 +23,11 @@ public class GameUI : MonoBehaviour {
 
 	public void ToggleInGameMenu(bool active) {
 		inGameMenu.SetActive(active);
+	}
+
+	public void ToggleWaitingForPlayersText(bool active) {
+		if (waitingForPlayers.activeSelf != active) {
+			waitingForPlayers.SetActive(active);
+		}
 	}
 }

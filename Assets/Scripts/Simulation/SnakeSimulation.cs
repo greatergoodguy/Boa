@@ -29,7 +29,7 @@ public struct AllSnakesState {
     }
 
     public AllSnakesState AddSnakesForNewPlayers(PlayerCommands commands) {
-        Func<int, SnakeState> NewSnake = (int ownerId) => new SnakeState(ownerId);
+        Func<int, SnakeState> NewSnake = (int ownerId) => new SnakeState(ownerId, headPosition: new DG_Vector2(ownerId * 2, ownerId * -2));
         var newSnakes = commands.serverCommands.newPlayerIds.Select(NewSnake);
 
         return new AllSnakesState(
@@ -74,8 +74,8 @@ public struct SnakeState {
     public readonly DG_Vector2[] tails;
     public readonly bool ateAppleLastTick;
 
-    public SnakeState(int ownerNetId) {
-        this.headPosition = DG_Vector2.zero;
+    public SnakeState(int ownerNetId, DG_Vector2? headPosition = null) {
+        this.headPosition = headPosition.HasValue ? headPosition.Value : DG_Vector2.zero;
         this.direction = new Direction(DirectionEnum.Up);
         this.isAlive = true;
         this.ownerId = ownerNetId;
