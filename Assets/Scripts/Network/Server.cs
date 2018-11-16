@@ -97,7 +97,7 @@ public class Server : MonoBehaviour {
 
 #if !UNITY_EDITOR
 		networkManager.useWebSockets = true;
-#else
+#endif
 
 		networkManager.StartServer();
 		OnServerStart();
