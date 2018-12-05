@@ -21,6 +21,7 @@ public class Server : MonoBehaviour {
 		isServer = true;
 		networkManager = GetComponent<DG_NetworkManager>();
 		I = this;
+		Application.targetFrameRate = 300;
 	}
 
 	void Start() {
