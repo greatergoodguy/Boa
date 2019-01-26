@@ -4,7 +4,7 @@ public class Clock {
     public float elapsedTime { get; private set; }
     public bool paused { get; private set; }
 
-    const float ticksPerSecond = 8;
+    const float ticksPerSecond = 20;
 
     public bool Tock(float delta) {
         if (paused) return false;
