@@ -16,7 +16,7 @@ public class Client : MonoBehaviour {
 		isClient = true;
 
 #if UNITY_WEBGL
-		networkManager.useWebSockets = true;
+		NetworkManager.singleton.useWebSockets = true;
 #endif
 	}
 
