@@ -17,4 +17,11 @@ public class EditorMenuExtensions {
 
         BuildPipeline.BuildPlayer(levels, "Builds/windows/snakeWindowsClient.exe", BuildTarget.StandaloneWindows64, BuildOptions.None);
     }
+
+    [MenuItem("Serpentes/webgl-build")]
+    public static void BuildWebGL() {
+        string[] levels = new string[] { "Assets/scenes/client.unity" };
+
+        BuildPipeline.BuildPlayer(levels, "Builds/webgl", BuildTarget.WebGL, BuildOptions.None);
+    }
 }

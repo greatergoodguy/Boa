@@ -1,5 +1,6 @@
-- [ ] Limit framerate on server
+- [x] Limit framerate on server
     - https://docs.unity3d.com/ScriptReference/Application-targetFrameRate.html
 - [ ] have game connect to snake.test.adenflorian.com automatically
 - [ ] countdown at start once enough players
 - [ ] different colored snakes
+- [ ] server cli arg for frame rate limit
